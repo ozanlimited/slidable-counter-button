@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SlidableCounterButton">
+        <attr name="animOnStart" format="boolean" />
+        <attr name="makeRollAnimation" format="boolean" />
+        <attr name="minusActiveDrawable" format="reference" />
+        <attr name="minusInactiveDrawable" format="reference" />
+        <attr name="plusActiveDrawable" format="reference" />
+        <attr name="plusInactiveDrawable" format="reference" />
+        <attr name="defaultTextColor" format="color" />
+        <attr name="accentTextColor" format="color" />
+        <attr name="cardViewTopBackgroundColor" format="color" />
+        <attr name="cardViewBottomBackgroundColor" format="color" />
+    </declare-styleable>
+</resources>
