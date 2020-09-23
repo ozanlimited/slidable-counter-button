@@ -91,6 +91,12 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var countChangedListener: CountChangedListener? = null
 
     /**
+     * Gives callback when out of stock.
+     */
+
+    private var outOfStockListener: OutOfStockListener? = null
+
+    /**
      * Make roll animation on count changed.
      */
 
@@ -276,10 +282,14 @@ class SlidableCounterButton @JvmOverloads constructor(
         buttonMinus.setOnClickListener {
             if (canDecreasePiece())
                 makeRollAnimationAndUpdateCount(textViewCounter, false)
+            else
+                outOfStockListener?.outOfStock()
         }
         buttonPlus.setOnClickListener {
             if (canIncreasePiece())
                 makeRollAnimationAndUpdateCount(textViewCounter, true)
+            else
+                outOfStockListener?.outOfStock()
         }
         textViewSmallCounter.setOnClickListener {
             setStateFullExpanded()
@@ -451,12 +461,16 @@ class SlidableCounterButton @JvmOverloads constructor(
                 cardViewBottom.clearAnimation()
                 cardViewBottom.startAnimation(popOutAnimation)
                 makeRollAnimationAndUpdateCount(textViewPrice, true)
+            } else {
+                outOfStockListener?.outOfStock()
             }
         } else if (_currentState == STATE_COLLAPSED) {
             if (canIncreasePiece()) {
                 cardViewTop.clearAnimation()
                 cardViewTop.startAnimation(resizeAnimation)
                 increasePiece()
+            } else {
+                outOfStockListener?.outOfStock()
             }
         }
 
@@ -649,9 +663,6 @@ class SlidableCounterButton @JvmOverloads constructor(
      */
 
     fun setMinusButtonState(isEnabled: Boolean) {
-        buttonMinus.isEnabled = isEnabled
-        buttonMinus.isClickable = isEnabled
-
         if (isEnabled) buttonMinus.setImageDrawable(
             minusActiveDrawable ?: ContextCompat.getDrawable(
                 context,
@@ -670,9 +681,6 @@ class SlidableCounterButton @JvmOverloads constructor(
      */
 
     fun setPlusButtonState(isEnabled: Boolean) {
-        buttonPlus.isEnabled = isEnabled
-        buttonPlus.isClickable = isEnabled
-
         if (isEnabled) buttonPlus.setImageDrawable(
             plusActiveDrawable ?: ContextCompat.getDrawable(
                 context,
@@ -782,6 +790,14 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /**
+     * Set [OutOfStockListener]
+     */
+
+    fun setOutOfStockListener(listener: OutOfStockListener) {
+        outOfStockListener = listener
+    }
+
+    /**
      * Set [PriceFormatter]
      */
 
@@ -856,6 +872,10 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     interface CountChangedListener {
         fun onCountChanged(count: Int, currentState: SlidableCounterButtonState)
+    }
+
+    interface OutOfStockListener {
+        fun outOfStock()
     }
 
     companion object {

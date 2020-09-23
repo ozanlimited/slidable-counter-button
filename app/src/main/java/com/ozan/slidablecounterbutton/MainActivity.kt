@@ -1,8 +1,9 @@
 package com.ozan.slidablecounterbutton
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.ozan.lib.slidablecounterbutton.PriceFormatter
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButton
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState
@@ -28,6 +29,16 @@ class MainActivity : AppCompatActivity() {
         counterButton.setPriceFormatter(object : PriceFormatter() {
             override fun getFormattedValue(price: Int, pieceValueSign: String?): String {
                 return "$pieceValueSign $price"
+            }
+        })
+
+        counterButton.setOutOfStockListener(object : SlidableCounterButton.OutOfStockListener {
+            override fun outOfStock() {
+                Snackbar.make(
+                    rootLayout,
+                    "Unfortunately, the following item(s) that you ordered are now out-of-stock",
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         })
     }
