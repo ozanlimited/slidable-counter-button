@@ -17,14 +17,6 @@ android {
         consumerProguardFiles "consumer-rules.pro"
     }
 
-    buildFeatures {
-        dataBinding true
-    }
-
-    androidExtensions {
-        experimental = true
-    }
-
     lintOptions {
         checkReleaseBuilds true
         abortOnError false

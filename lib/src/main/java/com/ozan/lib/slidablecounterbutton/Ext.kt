@@ -2,13 +2,8 @@ package com.ozan.lib.slidablecounterbutton
 
 import android.content.Context
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.annotation.LayoutRes
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 
 inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -19,33 +14,6 @@ inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
             }
         }
     })
-}
-
-fun <T : ViewDataBinding> ViewGroup?.inflate(
-    @LayoutRes layoutId: Int,
-    attachToParent: Boolean = true
-): T {
-    if (this?.isInEditMode == true) {
-        View.inflate(context, layoutId, this)
-    }
-    return DataBindingUtil.inflate(
-        LayoutInflater.from(this!!.context),
-        layoutId,
-        this,
-        attachToParent
-    )
-}
-
-fun <T : ViewDataBinding> View?.inflate(
-    @LayoutRes layoutId: Int,
-    attachToParent: Boolean = true
-): T {
-    return DataBindingUtil.inflate(
-        LayoutInflater.from(this!!.context),
-        layoutId,
-        parent as? ViewGroup,
-        attachToParent
-    )
 }
 
 fun Context.getPixels(valueInDp: Int): Int {
