@@ -1,5 +1,6 @@
 package com.ozan.slidablecounterbutton
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,8 +18,11 @@ class MainActivity : AppCompatActivity() {
 
         counterButton.setup(
             SlidableCounterButtonViewState("My Awesome Product", 499, "$", 5),
-            SlidableCounterButtonState.STATE_HALF_EXPANDED
+            SlidableCounterButtonState.STATE_COLLAPSED
         )
+
+        counterButton.setPriceTextTypeface(Typeface.MONOSPACE)
+        counterButton.setTitleTextTypeface(Typeface.DEFAULT_BOLD)
 
         counterButton.setCountChangedListener(object : SlidableCounterButton.CountChangedListener {
             override fun onCountChanged(count: Int, currentState: SlidableCounterButtonState) {

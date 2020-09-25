@@ -3,6 +3,7 @@ package com.ozan.lib.slidablecounterbutton
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -832,6 +833,38 @@ class SlidableCounterButton @JvmOverloads constructor(
      */
     fun setPriceTextSize(size: Float) {
         textViewPrice.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        calculateViews()
+    }
+
+    /** Set counter text size
+     * @param size The desired size in the SP.
+     */
+    fun setCounterTextTypeface(typeface: Typeface) {
+        textViewCounter.typeface = typeface
+        calculateViews()
+    }
+
+    /** Set small counter text size
+     * @param size The desired size in the SP.
+     */
+    fun setSmallCounterTextTypeface(typeface: Typeface) {
+        textViewSmallCounter.typeface = typeface
+        calculateViews()
+    }
+
+    /** Set title text size
+     * @param size The desired size in the SP.
+     */
+    fun setTitleTextTypeface(typeface: Typeface) {
+        textViewTitle.typeface = typeface
+        calculateViews()
+    }
+
+    /** Set title text size
+     * @param size The desired size in the SP.
+     */
+    fun setPriceTextTypeface(typeface: Typeface) {
+        textViewPrice.typeface = typeface
         calculateViews()
     }
 
