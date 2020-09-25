@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.ozan.lib.slidablecounterbutton.PriceFormatter
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButton
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonViewState
@@ -27,12 +26,6 @@ class MainActivity : AppCompatActivity() {
         counterButton.setCountChangedListener(object : SlidableCounterButton.CountChangedListener {
             override fun onCountChanged(count: Int, currentState: SlidableCounterButtonState) {
                 Toast.makeText(this@MainActivity, "$count $currentState", Toast.LENGTH_SHORT).show()
-            }
-        })
-
-        counterButton.setPriceFormatter(object : PriceFormatter() {
-            override fun getFormattedValue(price: Int, pieceValueSign: String?): String {
-                return "$pieceValueSign $price"
             }
         })
 

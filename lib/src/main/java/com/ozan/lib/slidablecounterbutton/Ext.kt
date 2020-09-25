@@ -4,6 +4,14 @@ import android.content.Context
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
+import java.text.DecimalFormat
+
+fun Double.getFormattedPrice(): String {
+    val fmt = DecimalFormat.getInstance()
+    fmt.minimumFractionDigits = 2
+    fmt.maximumFractionDigits = 2
+    return fmt.format(this)
+}
 
 inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {

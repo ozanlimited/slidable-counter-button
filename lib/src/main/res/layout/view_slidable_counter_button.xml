@@ -89,15 +89,17 @@
         <RelativeLayout
             android:id="@+id/relativeLayoutTop"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/textViewTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
                 android:layout_marginStart="@dimen/margin_8dp"
                 android:layout_marginEnd="@dimen/margin_8dp"
+                android:gravity="center_vertical"
                 tools:text="100 Gaming E-Pin"
                 tools:textColor="@android:color/white" />
 
@@ -105,9 +107,12 @@
                 android:id="@+id/textViewPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
                 android:layout_marginStart="@dimen/margin_8dp"
                 android:layout_marginEnd="@dimen/margin_8dp"
+                android:gravity="center_vertical"
                 tools:text="100,0 TL"
                 tools:textColor="@android:color/white" />
 
