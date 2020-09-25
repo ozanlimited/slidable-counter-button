@@ -2,12 +2,12 @@ package com.ozan.lib.slidablecounterbutton
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.animation.Animation
@@ -135,10 +135,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         setOnTouchListener()
     }
 
-    /**
-     * Save current state.
-     */
-
+    /** Save current state. */
     override fun onSaveInstanceState(): Parcelable? {
         val savedState = super.onSaveInstanceState()?.let { SlidableCounterButtonSavedState(it) }
         savedState?.currentState = currentState
@@ -148,10 +145,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         return savedState
     }
 
-    /**
-     * Restore state.
-     */
-
+    /** Restore state. */
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is SlidableCounterButtonSavedState) {
             super.onRestoreInstanceState(state.superState)
@@ -170,10 +164,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Calculate view widths
-     */
-
+    /** Calculate view widths */
     private fun calculateViews() {
         rootLayout.afterMeasured {
             halfExpandedSpaceWidth =
@@ -186,20 +177,14 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Detect swipe gestures / onClick
-     */
-
-    @SuppressLint("ClickableViewAccessibility")
+    /** Detect swipe gestures / onClick */
     private fun setOnTouchListener() {
         cardViewTop.setOnTouchListener touchListener@{ _, motionEvent ->
             val duration: Long = motionEvent.eventTime - motionEvent.downTime
 
             if ((motionEvent.action == MotionEvent.ACTION_UP) && duration < CLICK_THRESHOLD && !isAnimating && !isSliding) {
-                animateClick().apply {
-                    isAnimating = true
-                }
-                return@touchListener true
+                animateClick()
+                return@touchListener false
             }
 
             when (motionEvent.action) {
@@ -209,7 +194,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_UP -> {
                     touchX = motionEvent.x // End of the touch point
-                    handleTouchEnd().apply { isAnimating = true }
+                    handleTouchEnd()
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -222,10 +207,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Init default values and onClickListeners.
-     */
-
+    /** Init default values and onClickListeners. */
     private fun setView(attrs: AttributeSet?) {
         attrs?.let {
             val typedArray = context.obtainStyledAttributes(it, R.styleable.SlidableCounterButton)
@@ -280,15 +262,15 @@ class SlidableCounterButton @JvmOverloads constructor(
             makeColorAnimation()
         }
         buttonMinus.setOnClickListener {
-            if (canDecreasePiece())
+            if (canDecreasePiece() && !isAnimating)
                 makeRollAnimationAndUpdateCount(textViewCounter, false)
-            else
+            else if (canDecreasePiece().not() && !isAnimating)
                 outOfStockListener?.outOfStock()
         }
         buttonPlus.setOnClickListener {
-            if (canIncreasePiece())
+            if (canIncreasePiece() && !isAnimating)
                 makeRollAnimationAndUpdateCount(textViewCounter, true)
-            else
+            else if (canIncreasePiece().not() && !isAnimating)
                 outOfStockListener?.outOfStock()
         }
         textViewSmallCounter.setOnClickListener {
@@ -296,10 +278,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Handle slide event in view bounds.
-     */
-
+    /** Handle slide event in view bounds. */
     private fun handleSlide(slideDistance: Float) {
         isSliding = true
         val currentCardViewTopWidth = cardViewTop.measuredWidth
@@ -317,15 +296,13 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Handle end of the touch. It helps to set state successfully.
-     */
-
+    /** Handle end of the touch. It helps to set state successfully. */
     private fun handleTouchEnd() {
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val visibleSpaceWidth = width - currentCardViewTopWidth
 
         if (visibleSpaceWidth <= fullExpandedSpaceWidth || visibleSpaceWidth >= halfExpandedSpaceWidth) {
+            isAnimating = true
             if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount != 0) {
                 setStateHalfExpanded()
             } else if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount == 0) {
@@ -336,10 +313,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Set current state [STATE_COLLAPSED]
-     */
-
+    /** Set current state [STATE_COLLAPSED] */
     private fun setStateCollapsed() {
         val resizeAnimation =
             ResizeAnimation(
@@ -353,7 +327,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             Animation.AnimationListener {
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_COLLAPSED
-                textViewSmallCounter.hide()
+                textViewSmallCounter.invisible()
                 linearLayoutCounterContainer.visible()
             }
 
@@ -365,10 +339,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         })
     }
 
-    /**
-     * Set current state [STATE_HALF_EXPANDED]
-     */
-
+    /** Set current state [STATE_HALF_EXPANDED] */
     private fun setStateHalfExpanded() {
         val resizeAnimation =
             ResizeAnimation(
@@ -383,7 +354,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_HALF_EXPANDED
                 textViewSmallCounter.visible()
-                linearLayoutCounterContainer.hide()
+                linearLayoutCounterContainer.invisible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -394,10 +365,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         })
     }
 
-    /**
-     * Set current state [STATE_FULL_EXPANDED]
-     */
-
+    /** Set current state [STATE_FULL_EXPANDED] */
     private fun setStateFullExpanded() {
         val resizeAnimation =
             ResizeAnimation(
@@ -411,7 +379,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             Animation.AnimationListener {
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_FULL_EXPANDED
-                textViewSmallCounter.hide()
+                textViewSmallCounter.invisible()
                 linearLayoutCounterContainer.visible()
             }
 
@@ -423,10 +391,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         })
     }
 
-    /**
-     * Handles click of the Top CardView.
-     */
-
+    /** Handles click of the Top CardView. */
     private fun animateClick() {
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val currentCardViewBottomWidth = cardViewBottom.measuredWidth
@@ -438,6 +403,8 @@ class SlidableCounterButton @JvmOverloads constructor(
                 (currentCardViewBottomWidth - diff)
             ).apply {
                 duration = 200
+                isFillEnabled = true
+                fillAfter = true
             }
 
         val popInAnimation =
@@ -446,6 +413,8 @@ class SlidableCounterButton @JvmOverloads constructor(
                 (currentCardViewBottomWidth + diff)
             ).apply {
                 duration = 200
+                isFillEnabled = true
+                fillAfter = true
             }
 
         val resizeAnimation =
@@ -454,28 +423,36 @@ class SlidableCounterButton @JvmOverloads constructor(
                 (width - halfExpandedSpaceWidth).toInt()
             ).apply {
                 duration = 300
+                isFillEnabled = true
+                fillAfter = true
             }
 
-        if (_currentState == STATE_HALF_EXPANDED) {
-            if (canIncreasePiece()) {
-                cardViewBottom.clearAnimation()
-                cardViewBottom.startAnimation(popOutAnimation)
-                makeRollAnimationAndUpdateCount(textViewPrice, true)
-            } else {
-                outOfStockListener?.outOfStock()
+        when (_currentState) {
+            STATE_HALF_EXPANDED -> {
+                if (canIncreasePiece() && !isAnimating && cardViewBottom.animation == null) {
+                    cardViewBottom.startAnimation(popOutAnimation)
+                    makeRollAnimationAndUpdateCount(textViewPrice, true)
+                } else if (canIncreasePiece().not() && !isAnimating) {
+                    outOfStockListener?.outOfStock()
+                }
             }
-        } else if (_currentState == STATE_COLLAPSED) {
-            if (canIncreasePiece()) {
-                cardViewTop.clearAnimation()
-                cardViewTop.startAnimation(resizeAnimation)
-                increasePiece()
-            } else {
-                outOfStockListener?.outOfStock()
+            STATE_COLLAPSED -> {
+                if (canIncreasePiece() && !isAnimating && cardViewTop.animation == null) {
+                    cardViewTop.startAnimation(resizeAnimation)
+                } else if (canIncreasePiece().not() && !isAnimating) {
+                    outOfStockListener?.outOfStock()
+                }
+            }
+            STATE_BETWEEN_HALF_FULL -> {
+            }
+            STATE_FULL_EXPANDED -> {
             }
         }
 
         popOutAnimation.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {}
+            override fun onAnimationStart(p0: Animation?) {
+                isAnimating = true
+            }
 
             override fun onAnimationRepeat(p0: Animation?) {}
 
@@ -492,6 +469,7 @@ class SlidableCounterButton @JvmOverloads constructor(
 
             override fun onAnimationEnd(p0: Animation?) {
                 isAnimating = false
+                cardViewBottom.clearAnimation()
             }
         })
 
@@ -499,28 +477,26 @@ class SlidableCounterButton @JvmOverloads constructor(
             Animation.AnimationListener {
             override fun onAnimationStart(p0: Animation?) {
                 textViewSmallCounter.visible()
-                linearLayoutCounterContainer.hide()
+                linearLayoutCounterContainer.invisible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
 
             override fun onAnimationEnd(p0: Animation?) {
+                increasePiece()
                 isAnimating = false
             }
         })
     }
 
-    /**
-     * Decrease [SlidableCounterButtonViewState.purchasedCount]
-     */
-
+    /** Decrease [SlidableCounterButtonViewState.purchasedCount] */
     private fun decreasePiece() {
         viewState?.let {
             val current = it.purchasedCount
+            setPlusButtonState(true)
 
             setViewState(it.copy(purchasedCount = current?.minus(1)))
             setMinusButtonState(canDecreasePiece())
-            setPlusButtonState(true)
 
             countChangedListener?.onCountChanged(
                 viewState?.purchasedCount.orZero(),
@@ -538,10 +514,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Returns true if can decrease otherwise false.
-     */
-
+    /** Returns true if can decrease otherwise false. */
     fun canDecreasePiece(): Boolean {
         viewState?.let {
             val current = it.purchasedCount
@@ -550,10 +523,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         return false
     }
 
-    /**
-     * Increase [SlidableCounterButtonViewState.purchasedCount]
-     */
-
+    /** Increase [SlidableCounterButtonViewState.purchasedCount] */
     private fun increasePiece() {
         viewState?.let {
             val current = it.purchasedCount
@@ -578,10 +548,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Returns true if can increase otherwise false.
-     */
-
+    /** Returns true if can increase otherwise false. */
     fun canIncreasePiece(): Boolean {
         viewState?.let {
             val current = it.purchasedCount
@@ -590,11 +557,9 @@ class SlidableCounterButton @JvmOverloads constructor(
         return false
     }
 
-    /**
-     * Increase/decrease [SlidableCounterButtonViewState.purchasedCount] and make roll out/in animation
-     */
-
+    /** Increase/decrease [SlidableCounterButtonViewState.purchasedCount] and make roll out/in animation */
     private fun makeRollAnimationAndUpdateCount(target: TextView, increase: Boolean) {
+        isAnimating = true
         if (increase && makeRollAnimation)
             YoYo.with(Techniques.SlideOutUp)
                 .duration(200)
@@ -602,11 +567,16 @@ class SlidableCounterButton @JvmOverloads constructor(
                     increasePiece()
                     YoYo.with(Techniques.SlideInUp)
                         .duration(200)
+                        .onEnd {
+                            isAnimating = false
+                        }
                         .playOn(target)
                 }
                 .playOn(target)
         else if (increase && !makeRollAnimation)
-            increasePiece()
+            increasePiece().also {
+                isAnimating = false
+            }
         else if (!increase && makeRollAnimation)
             YoYo.with(Techniques.SlideOutDown)
                 .duration(200)
@@ -614,17 +584,19 @@ class SlidableCounterButton @JvmOverloads constructor(
                     decreasePiece()
                     YoYo.with(Techniques.SlideInDown)
                         .duration(200)
+                        .onEnd {
+                            isAnimating = false
+                        }
                         .playOn(target)
                 }
                 .playOn(target)
         else if (!increase && !makeRollAnimation)
-            decreasePiece()
+            decreasePiece().also {
+                isAnimating = false
+            }
     }
 
-    /**
-     * Make color animation for Price Text.
-     */
-
+    /** Make color animation for Price Text. */
     private fun makeColorAnimation() {
         val animDefaultToAccent =
             ValueAnimator.ofObject(ArgbEvaluator(), defaultTextColor, accentTextColor).apply {
@@ -658,10 +630,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Set minus button state.
-     */
-
+    /** Set minus button state. */
     fun setMinusButtonState(isEnabled: Boolean) {
         if (isEnabled) buttonMinus.setImageDrawable(
             minusActiveDrawable ?: ContextCompat.getDrawable(
@@ -676,10 +645,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         )
     }
 
-    /**
-     * Set plus button state.
-     */
-
+    /** Set plus button state. */
     fun setPlusButtonState(isEnabled: Boolean) {
         if (isEnabled) buttonPlus.setImageDrawable(
             plusActiveDrawable ?: ContextCompat.getDrawable(
@@ -694,10 +660,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         )
     }
 
-    /**
-     * Set viewState.
-     */
-
+    /** Set viewState. */
     private fun setViewState(state: SlidableCounterButtonViewState) {
         clickEnabled = true
         viewState = state
@@ -706,10 +669,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         textViewSmallCounter.text = state.purchasedCount.toString()
     }
 
-    /**
-     * Set viewState and initial state.
-     */
-
+    /** Set viewState and initial state. */
     fun setup(
         viewState: SlidableCounterButtonViewState,
         initialState: SlidableCounterButtonState? = STATE_COLLAPSED
@@ -781,26 +741,17 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Set [CountChangedListener]
-     */
-
+    /** Set [CountChangedListener] */
     fun setCountChangedListener(listener: CountChangedListener) {
         countChangedListener = listener
     }
 
-    /**
-     * Set [OutOfStockListener]
-     */
-
+    /** Set [OutOfStockListener] */
     fun setOutOfStockListener(listener: OutOfStockListener) {
         outOfStockListener = listener
     }
 
-    /**
-     * Set [PriceFormatter]
-     */
-
+    /** Set [PriceFormatter] */
     fun setPriceFormatter(formatter: PriceFormatter) {
         priceFormatter = formatter
         textViewPrice.text =
@@ -810,10 +761,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             )
     }
 
-    /**
-     * Set Minus Drawables
-     */
-
+    /** Set Minus Drawables */
     fun setMinusDrawables(active: Drawable?, inActive: Drawable?) {
         if (active != null)
             minusActiveDrawable = active
@@ -822,10 +770,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         setMinusButtonState(canDecreasePiece())
     }
 
-    /**
-     * Set Plus Drawables
-     */
-
+    /** Set Plus Drawables */
     fun setPlusDrawables(active: Drawable?, inActive: Drawable?) {
         if (active != null)
             plusActiveDrawable = active
@@ -834,40 +779,60 @@ class SlidableCounterButton @JvmOverloads constructor(
         setPlusButtonState(canIncreasePiece())
     }
 
-    /**
-     * Set Default Text Color
-     */
-
+    /** Set Default Text Color */
     fun setColorTextDefault(@ColorInt color: Int) {
         defaultTextColor = color
         makeColorAnimation()
     }
 
-    /**
-     * Set Accent Text Color
-     */
-
+    /** Set Accent Text Color */
     fun setColorTextAccent(@ColorInt color: Int) {
         accentTextColor = color
         makeColorAnimation()
     }
 
-    /**
-     * Set Bottom CardView Background Color
-     */
-
+    /** Set Bottom CardView Background Color */
     fun setCardBottomBackgroundColor(@ColorInt color: Int) {
         cardViewBottomBackgroundColor = color
         cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
     }
 
-    /**
-     * Set Top CardView Background Color
-     */
-
+    /** Set Top CardView Background Color */
     fun setCardTopBackgroundColor(@ColorInt color: Int) {
         cardViewTopBackgroundColor = color
         cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
+    }
+
+    /** Set counter text size
+     * @param size The desired size in the SP.
+     */
+    fun setCounterTextSize(size: Float) {
+        textViewCounter.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        calculateViews()
+    }
+
+    /** Set small counter text size
+     * @param size The desired size in the SP.
+     */
+    fun setSmallCounterTextSize(size: Float) {
+        textViewSmallCounter.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        calculateViews()
+    }
+
+    /** Set title text size
+     * @param size The desired size in the SP.
+     */
+    fun setTitleTextSize(size: Float) {
+        textViewTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        calculateViews()
+    }
+
+    /** Set title text size
+     * @param size The desired size in the SP.
+     */
+    fun setPriceTextSize(size: Float) {
+        textViewPrice.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        calculateViews()
     }
 
     interface CountChangedListener {
