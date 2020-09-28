@@ -23,6 +23,8 @@ import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState.*
 import kotlinx.android.synthetic.main.view_slidable_counter_button.view.*
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.properties.Delegates
 
 /**
@@ -86,6 +88,15 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var touchX = 0.0f
 
     /**
+     * Used for detecting start/end [MotionEvent] x,y points.
+     */
+
+    private var startTouchX = 0.0f
+    private var startTouchY = 0.0f
+    private var endTouchX = 0.0f
+    private var endTouchY = 0.0f
+
+    /**
      * Gives callback when count changed.
      */
 
@@ -131,8 +142,8 @@ class SlidableCounterButton @JvmOverloads constructor(
     init {
         LayoutInflater.from(context).inflate(R.layout.view_slidable_counter_button, this, true)
         isSaveEnabled = true
-        calculateViews()
         setView(attrs)
+        calculateViews()
         setOnTouchListener()
     }
 
@@ -181,21 +192,24 @@ class SlidableCounterButton @JvmOverloads constructor(
     /** Detect swipe gestures / onClick */
     private fun setOnTouchListener() {
         cardViewTop.setOnTouchListener touchListener@{ _, motionEvent ->
-            val duration: Long = motionEvent.eventTime - motionEvent.downTime
-
-            if ((motionEvent.action == MotionEvent.ACTION_UP) && duration < CLICK_THRESHOLD && !isAnimating && !isSliding) {
-                animateClick()
-                return@touchListener false
-            }
 
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    touchX = motionEvent.x // Start of the touch point
+                    startTouchX = motionEvent.x // Start of the touch X point
+                    startTouchY = motionEvent.y // Start of the touch X point
+                    touchX = motionEvent.x
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    touchX = motionEvent.x // End of the touch point
-                    handleTouchEnd()
+                    isSliding = false
+                    endTouchX = motionEvent.x // End of the touch X point
+                    endTouchY = motionEvent.y // End of the touch Y point
+
+                    if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
+                        animateClick()
+                    } else {
+                        handleTouchEnd()
+                    }
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -210,38 +224,43 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     /** Init default values and onClickListeners. */
     private fun setView(attrs: AttributeSet?) {
-        attrs?.let {
-            val typedArray = context.obtainStyledAttributes(it, R.styleable.SlidableCounterButton)
-            animateOnStart =
-                typedArray.getBoolean(R.styleable.SlidableCounterButton_animOnStart, false)
-            makeRollAnimation =
-                typedArray.getBoolean(R.styleable.SlidableCounterButton_makeRollAnimation, true)
-            minusActiveDrawable =
-                typedArray.getDrawable(R.styleable.SlidableCounterButton_minusActiveDrawable)
-            minusInactiveDrawable =
-                typedArray.getDrawable(R.styleable.SlidableCounterButton_minusInactiveDrawable)
-            plusActiveDrawable =
-                typedArray.getDrawable(R.styleable.SlidableCounterButton_plusActiveDrawable)
-            plusInactiveDrawable =
-                typedArray.getDrawable(R.styleable.SlidableCounterButton_plusInactiveDrawable)
-            defaultTextColor =
-                typedArray.getColor(
-                    R.styleable.SlidableCounterButton_defaultTextColor,
-                    ContextCompat.getColor(context, R.color.color_white)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SlidableCounterButton)
+
+        try {
+            attrs?.let {
+                animateOnStart =
+                    typedArray.getBoolean(R.styleable.SlidableCounterButton_animOnStart, false)
+                makeRollAnimation =
+                    typedArray.getBoolean(R.styleable.SlidableCounterButton_makeRollAnimation, true)
+                minusActiveDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_minusActiveDrawable)
+                minusInactiveDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_minusInactiveDrawable)
+                plusActiveDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_plusActiveDrawable)
+                plusInactiveDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_plusInactiveDrawable)
+                defaultTextColor =
+                    typedArray.getColor(
+                        R.styleable.SlidableCounterButton_defaultTextColor,
+                        ContextCompat.getColor(context, R.color.color_white)
+                    )
+                accentTextColor =
+                    typedArray.getColor(
+                        R.styleable.SlidableCounterButton_accentTextColor,
+                        ContextCompat.getColor(context, R.color.color_dark_pink)
+                    )
+                cardViewTopBackgroundColor = typedArray.getColor(
+                    R.styleable.SlidableCounterButton_cardViewTopBackgroundColor,
+                    ContextCompat.getColor(context, R.color.color_dark_grey)
                 )
-            accentTextColor =
-                typedArray.getColor(
-                    R.styleable.SlidableCounterButton_accentTextColor,
+                cardViewBottomBackgroundColor = typedArray.getColor(
+                    R.styleable.SlidableCounterButton_cardViewBottomBackgroundColor,
                     ContextCompat.getColor(context, R.color.color_dark_pink)
                 )
-            cardViewTopBackgroundColor = typedArray.getColor(
-                R.styleable.SlidableCounterButton_cardViewTopBackgroundColor,
-                ContextCompat.getColor(context, R.color.color_dark_grey)
-            )
-            cardViewBottomBackgroundColor = typedArray.getColor(
-                R.styleable.SlidableCounterButton_cardViewBottomBackgroundColor,
-                ContextCompat.getColor(context, R.color.color_dark_pink)
-            )
+            }
+        } finally {
+            typedArray.recycle()
         }
 
         cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
@@ -435,6 +454,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     makeRollAnimationAndUpdateCount(textViewPrice, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     outOfStockListener?.outOfStock()
+                    handleTouchEnd()
                 }
             }
             STATE_COLLAPSED -> {
@@ -442,11 +462,20 @@ class SlidableCounterButton @JvmOverloads constructor(
                     cardViewTop.startAnimation(resizeAnimation)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     outOfStockListener?.outOfStock()
+                    handleTouchEnd()
                 }
             }
             STATE_BETWEEN_HALF_FULL -> {
+                if (canIncreasePiece() && !isAnimating && cardViewBottom.animation == null) {
+                    cardViewBottom.startAnimation(popOutAnimation)
+                    makeRollAnimationAndUpdateCount(textViewPrice, true)
+                } else if (canIncreasePiece().not() && !isAnimating) {
+                    outOfStockListener?.outOfStock()
+                    handleTouchEnd()
+                }
             }
             STATE_FULL_EXPANDED -> {
+                handleTouchEnd()
             }
         }
 
@@ -471,6 +500,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationEnd(p0: Animation?) {
                 isAnimating = false
                 cardViewBottom.clearAnimation()
+                handleTouchEnd()
             }
         })
 
@@ -486,6 +516,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationEnd(p0: Animation?) {
                 increasePiece()
                 isAnimating = false
+                handleTouchEnd()
             }
         })
     }
@@ -556,6 +587,13 @@ class SlidableCounterButton @JvmOverloads constructor(
             return current != it.availableCount
         }
         return false
+    }
+
+    private fun isClick(startX: Float, startY: Float, endX: Float, endY: Float): Boolean {
+        val threshold = context.getPixels(7)
+        return max(endX, startX) - min(endX, startX) < threshold.toFloat()
+                &&
+                max(endY, startY) - min(endY, startY) < threshold.toFloat()
     }
 
     /** Increase/decrease [SlidableCounterButtonViewState.purchasedCount] and make roll out/in animation */
@@ -877,6 +915,6 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     companion object {
-        private const val CLICK_THRESHOLD = 100
+        private const val CLICK_THRESHOLD = 65
     }
 }
