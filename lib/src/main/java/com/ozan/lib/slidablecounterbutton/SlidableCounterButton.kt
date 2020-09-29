@@ -211,9 +211,8 @@ class SlidableCounterButton @JvmOverloads constructor(
                     if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
                         performClick()
                     } else {
-                        handleTouchEnd()
+                        normalizeCurrentState()
                     }
-                    clearFocus()
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -322,12 +321,13 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /** Handle end of the touch. It helps to set state successfully. */
-    private fun handleTouchEnd() {
+    fun normalizeCurrentState() {
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val visibleSpaceWidth = width - currentCardViewTopWidth
 
         if (visibleSpaceWidth <= fullExpandedSpaceWidth || visibleSpaceWidth >= halfExpandedSpaceWidth) {
             isAnimating = true
+            clearFocus()
             if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount != 0) {
                 setStateHalfExpanded()
             } else if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount == 0) {
@@ -339,7 +339,7 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /** Set current state [STATE_COLLAPSED] */
-    private fun setStateCollapsed() {
+    fun setStateCollapsed() {
         val resizeAnimation =
             ResizeAnimation(
                 cardViewTop,
@@ -365,7 +365,7 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /** Set current state [STATE_HALF_EXPANDED] */
-    private fun setStateHalfExpanded() {
+    fun setStateHalfExpanded() {
         val resizeAnimation =
             ResizeAnimation(
                 cardViewTop,
@@ -386,12 +386,13 @@ class SlidableCounterButton @JvmOverloads constructor(
 
             override fun onAnimationEnd(p0: Animation?) {
                 isAnimating = false
+                clearFocus()
             }
         })
     }
 
     /** Set current state [STATE_FULL_EXPANDED] */
-    private fun setStateFullExpanded() {
+    fun setStateFullExpanded() {
         val resizeAnimation =
             ResizeAnimation(
                 cardViewTop,
@@ -412,6 +413,7 @@ class SlidableCounterButton @JvmOverloads constructor(
 
             override fun onAnimationEnd(p0: Animation?) {
                 isAnimating = false
+                clearFocus()
             }
         })
     }
@@ -459,7 +461,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     makeRollAnimationAndUpdateCount(textViewPrice, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     outOfStockListener?.outOfStock()
-                    handleTouchEnd()
+                    normalizeCurrentState()
                 }
             }
             STATE_COLLAPSED -> {
@@ -467,7 +469,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     cardViewTop.startAnimation(resizeAnimation)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     outOfStockListener?.outOfStock()
-                    handleTouchEnd()
+                    normalizeCurrentState()
                 }
             }
             STATE_BETWEEN_HALF_FULL -> {
@@ -476,11 +478,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                     makeRollAnimationAndUpdateCount(textViewPrice, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     outOfStockListener?.outOfStock()
-                    handleTouchEnd()
+                    normalizeCurrentState()
                 }
             }
             STATE_FULL_EXPANDED -> {
-                handleTouchEnd()
+                normalizeCurrentState()
             }
         }
 
@@ -505,7 +507,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationEnd(p0: Animation?) {
                 isAnimating = false
                 cardViewBottom.clearAnimation()
-                handleTouchEnd()
+                normalizeCurrentState()
             }
         })
 
@@ -521,7 +523,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationEnd(p0: Animation?) {
                 increasePiece()
                 isAnimating = false
-                handleTouchEnd()
+                normalizeCurrentState()
             }
         })
         return true
