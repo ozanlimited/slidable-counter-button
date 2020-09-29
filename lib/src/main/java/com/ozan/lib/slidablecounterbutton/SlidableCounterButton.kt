@@ -142,6 +142,8 @@ class SlidableCounterButton @JvmOverloads constructor(
     init {
         LayoutInflater.from(context).inflate(R.layout.view_slidable_counter_button, this, true)
         isSaveEnabled = true
+        isFocusableInTouchMode = true
+        isFocusable = true
         setView(attrs)
         calculateViews()
         setOnTouchListener()
@@ -198,6 +200,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     startTouchX = motionEvent.x // Start of the touch X point
                     startTouchY = motionEvent.y // Start of the touch X point
                     touchX = motionEvent.x
+                    requestFocus()
                     true
                 }
                 MotionEvent.ACTION_UP -> {
@@ -206,15 +209,17 @@ class SlidableCounterButton @JvmOverloads constructor(
                     endTouchY = motionEvent.y // End of the touch Y point
 
                     if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
-                        animateClick()
+                        performClick()
                     } else {
                         handleTouchEnd()
                     }
+                    clearFocus()
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     handleSlide(motionEvent.x - touchX)
                     touchX = motionEvent.x // Update touch point
+                    requestFocus()
                     true
                 }
                 else -> true
@@ -411,8 +416,8 @@ class SlidableCounterButton @JvmOverloads constructor(
         })
     }
 
-    /** Handles click of the Top CardView. */
-    private fun animateClick() {
+    override fun performClick(): Boolean {
+        super.performClick()
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val currentCardViewBottomWidth = cardViewBottom.measuredWidth
         val diff = currentCardViewBottomWidth - currentCardViewTopWidth
@@ -519,6 +524,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 handleTouchEnd()
             }
         })
+        return true
     }
 
     /** Decrease [SlidableCounterButtonViewState.purchasedCount] */
