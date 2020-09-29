@@ -109,6 +109,12 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var outOfStockListener: OutOfStockListener? = null
 
     /**
+     * Gives callback when view sliding.
+     */
+
+    private var slideChangedListener: SlideChangedListener? = null
+
+    /**
      * Make roll animation on count changed.
      */
 
@@ -195,6 +201,8 @@ class SlidableCounterButton @JvmOverloads constructor(
 
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    isSliding = true
+                    slideChangedListener?.onSlideChanged(isSliding)
                     startTouchX = motionEvent.x // Start of the touch X point
                     startTouchY = motionEvent.y // Start of the touch X point
                     touchX = motionEvent.x
@@ -202,6 +210,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_UP -> {
                     isSliding = false
+                    slideChangedListener?.onSlideChanged(isSliding)
                     endTouchX = motionEvent.x // End of the touch X point
                     endTouchY = motionEvent.y // End of the touch Y point
 
@@ -301,6 +310,7 @@ class SlidableCounterButton @JvmOverloads constructor(
     /** Handle slide event in view bounds. */
     private fun handleSlide(slideDistance: Float) {
         isSliding = true
+        slideChangedListener?.onSlideChanged(isSliding)
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val afterSlideWidth = currentCardViewTopWidth + slideDistance
         val visibleSpaceWidth = width - afterSlideWidth
@@ -309,10 +319,12 @@ class SlidableCounterButton @JvmOverloads constructor(
         if (visibleSpaceWidth - slideThreshold > fullExpandedSpaceWidth || afterSlideWidth + slideThreshold > width) {
             Log.v("SlidableCounterButton", "Can't move more...")
             isSliding = false
+            slideChangedListener?.onSlideChanged(isSliding)
         } else {
             cardViewTop.layoutParams.width = afterSlideWidth.toInt()
             cardViewTop.requestLayout()
             isSliding = false
+            slideChangedListener?.onSlideChanged(isSliding)
         }
     }
 
@@ -785,6 +797,11 @@ class SlidableCounterButton @JvmOverloads constructor(
         countChangedListener = listener
     }
 
+    /** Set [SlideChangedListener] */
+    fun setSlideChangedListener(listener: SlideChangedListener) {
+        slideChangedListener = listener
+    }
+
     /** Set [OutOfStockListener] */
     fun setOutOfStockListener(listener: OutOfStockListener) {
         outOfStockListener = listener
@@ -908,6 +925,10 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     interface CountChangedListener {
         fun onCountChanged(count: Int, currentState: SlidableCounterButtonState)
+    }
+
+    interface SlideChangedListener {
+        fun onSlideChanged(isSliding: Boolean)
     }
 
     interface OutOfStockListener {
