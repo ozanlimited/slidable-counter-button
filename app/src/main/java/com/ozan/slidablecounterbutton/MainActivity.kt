@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.ozan.lib.slidablecounterbutton.PriceFormatter
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButton
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonViewState
@@ -16,12 +17,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         counterButton.setup(
-            SlidableCounterButtonViewState("My Awesome Product", 499, "$", 5),
+            SlidableCounterButtonViewState("My Awesome Product", 499.99, "$", 5),
             SlidableCounterButtonState.STATE_COLLAPSED
         )
 
         counterButton.setPriceTextTypeface(Typeface.MONOSPACE)
         counterButton.setTitleTextTypeface(Typeface.DEFAULT_BOLD)
+
+        counterButton.setPriceFormatter(object : PriceFormatter() {
+            override fun getFormattedValue(price: Double, pieceValueSign: String?): CharSequence =
+                "$ $price"
+        })
 
         counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
 
