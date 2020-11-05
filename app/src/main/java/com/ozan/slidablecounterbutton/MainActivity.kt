@@ -23,10 +23,24 @@ class MainActivity : AppCompatActivity() {
         counterButton.setPriceTextTypeface(Typeface.MONOSPACE)
         counterButton.setTitleTextTypeface(Typeface.DEFAULT_BOLD)
 
-        counterButton.setCountChangedListener(object : SlidableCounterButton.CountChangedListener {
-            override fun onCountChanged(count: Int, currentState: SlidableCounterButtonState) {
-                Toast.makeText(this@MainActivity, "$count $currentState", Toast.LENGTH_SHORT).show()
+        counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
+
+            override fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Value Increased : $count\n$currentState",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
+            override fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Value Decreased : $count\n$currentState",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
         })
 
         counterButton.setOutOfStockListener(object : SlidableCounterButton.OutOfStockListener {
