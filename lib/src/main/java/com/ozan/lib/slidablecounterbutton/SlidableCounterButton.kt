@@ -98,10 +98,10 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var endTouchY = 0.0f
 
     /**
-     * Gives callback when count changed.
+     * Gives callback when value changed.
      */
 
-    private var countChangedListener: CountChangedListener? = null
+    private var valueChangedListener: ValueChangedListener? = null
 
     /**
      * Gives callback when out of stock.
@@ -546,7 +546,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             setViewState(it.copy(purchasedCount = current?.minus(1)))
             setMinusButtonState(canDecreasePiece())
 
-            countChangedListener?.onCountChanged(
+            valueChangedListener?.onValueDecreased(
                 viewState?.purchasedCount.orZero(),
                 currentState
             )
@@ -580,7 +580,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             setPlusButtonState(canIncreasePiece())
             setMinusButtonState(true)
 
-            countChangedListener?.onCountChanged(
+            valueChangedListener?.onValueIncreased(
                 viewState?.purchasedCount.orZero(),
                 currentState
             )
@@ -796,9 +796,9 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /** Set [CountChangedListener] */
-    fun setCountChangedListener(listener: CountChangedListener) {
-        countChangedListener = listener
+    /** Set [ValueChangedListener] */
+    fun setValueChangedListener(listener: ValueChangedListener) {
+        valueChangedListener = listener
     }
 
     /** Set [OutOfStockListener] */
@@ -922,8 +922,9 @@ class SlidableCounterButton @JvmOverloads constructor(
         calculateViews()
     }
 
-    interface CountChangedListener {
-        fun onCountChanged(count: Int, currentState: SlidableCounterButtonState)
+    interface ValueChangedListener {
+        fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState)
+        fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState)
     }
 
     interface OutOfStockListener {
