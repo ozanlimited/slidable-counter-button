@@ -222,10 +222,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                     handleSlide(motionEvent.x - touchX)
                     if (abs(motionEvent.x - touchX) > 0 && abs(motionEvent.y - startTouchY) == 0.0f) {
                         requestDisallowInterceptTouchEvent(true)
-                    } else {
-                        if ((touchX - startTouchX) < 0 && viewState?.purchasedCount == 0 && canIncreasePiece())
-                            increasePiece()
                     }
+
+                    if ((touchX - motionEvent.x) > 0 && viewState?.purchasedCount == 0 && canIncreasePiece())
+                        increasePiece()
+
                     touchX = motionEvent.x // Update touch point
                     requestFocus()
                     true
