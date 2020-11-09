@@ -125,7 +125,8 @@ class SlidableCounterButton @JvmOverloads constructor(
      * ViewState
      */
 
-    private var viewState: SlidableCounterButtonViewState? = null
+    var viewState: SlidableCounterButtonViewState? = null
+        private set
 
     /**
      * Drawables and colors
@@ -716,12 +717,16 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /** Set viewState. */
-    private fun setViewState(state: SlidableCounterButtonViewState) {
+    fun setViewState(state: SlidableCounterButtonViewState) {
         clickEnabled = true
         viewState = state
         textViewTitle.text = state.title
         textViewCounter.text = state.purchasedCount.toString()
         textViewSmallCounter.text = state.purchasedCount.toString()
+        textViewPrice.text =
+            priceFormatter?.getFormattedValue(state.getTotalPrice().orZero(), state.pieceValueSign)
+        setMinusButtonState(canDecreasePiece())
+        setPlusButtonState(canIncreasePiece())
     }
 
     /** Set viewState and initial state. */
