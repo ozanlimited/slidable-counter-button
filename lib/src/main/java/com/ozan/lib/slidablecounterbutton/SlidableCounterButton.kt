@@ -416,6 +416,8 @@ class SlidableCounterButton @JvmOverloads constructor(
                 _currentState = STATE_FULL_EXPANDED
                 textViewSmallCounter.invisible()
                 linearLayoutCounterContainer.visible()
+                if (viewState?.purchasedCount == 0 && canIncreasePiece())
+                    increasePiece()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
