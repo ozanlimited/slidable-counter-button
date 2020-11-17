@@ -142,7 +142,11 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var cardViewBottomBackgroundColor by Delegates.notNull<Int>()
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_slidable_counter_button, this, true)
+        LayoutInflater.from(context).inflate(
+            R.layout.view_slidable_counter_button,
+            this,
+            true
+        )
         isSaveEnabled = true
         isFocusableInTouchMode = true
         isFocusable = true
@@ -212,7 +216,7 @@ class SlidableCounterButton @JvmOverloads constructor(
 
                     if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
                         performClick()
-                    } else {
+                    } else if (!isAnimating) {
                         normalizeCurrentState()
                     }
                     requestDisallowInterceptTouchEvent(false)
@@ -220,14 +224,21 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     handleSlide(motionEvent.x - touchX)
-                    if (abs(motionEvent.x - touchX) > 0 && abs(motionEvent.y - startTouchY) == 0.0f) {
+                    if (abs(motionEvent.x - touchX) > 0 &&
+                        abs(motionEvent.y - startTouchY) == 0.0f
+                    ) {
                         requestDisallowInterceptTouchEvent(true)
                     }
 
-                    if ((touchX - motionEvent.x) > 0 && viewState?.purchasedCount == 0 && canIncreasePiece())
+                    if ((startTouchX - touchX) >
+                        context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
+                        viewState?.purchasedCount == 0 && canIncreasePiece()
+                    ) {
                         increasePiece()
+                    }
 
                     touchX = motionEvent.x // Update touch point
+
                     requestFocus()
                     true
                 }
@@ -297,17 +308,19 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
 
         buttonMinus.setOnClickListener {
-            if (canDecreasePiece() && !isAnimating)
+            if (canDecreasePiece() && !isAnimating) {
                 makeRollAnimationAndUpdateCount(textViewCounter, false)
-            else if (canDecreasePiece().not() && !isAnimating)
+            } else if (canDecreasePiece().not() && !isAnimating) {
                 setStateCollapsed()
+            }
         }
 
         buttonPlus.setOnClickListener {
-            if (canIncreasePiece() && !isAnimating)
+            if (canIncreasePiece() && !isAnimating) {
                 makeRollAnimationAndUpdateCount(textViewCounter, true)
-            else if (canIncreasePiece().not() && !isAnimating)
+            } else if (canIncreasePiece().not() && !isAnimating) {
                 outOfStockListener?.outOfStock()
+            }
         }
 
         textViewSmallCounter.setOnClickListener {
@@ -323,7 +336,9 @@ class SlidableCounterButton @JvmOverloads constructor(
         val visibleSpaceWidth = width - afterSlideWidth
         val slideThreshold = context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP)
 
-        if (visibleSpaceWidth - slideThreshold > fullExpandedSpaceWidth || afterSlideWidth + slideThreshold > width) {
+        if (visibleSpaceWidth - slideThreshold > fullExpandedSpaceWidth ||
+            afterSlideWidth + slideThreshold > width
+        ) {
             Log.w("SlidableCounterButton", "Can't move more...")
             isSliding = false
         } else {
@@ -338,14 +353,26 @@ class SlidableCounterButton @JvmOverloads constructor(
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val visibleSpaceWidth = width - currentCardViewTopWidth
 
-        if (visibleSpaceWidth <= fullExpandedSpaceWidth || visibleSpaceWidth >= halfExpandedSpaceWidth) {
+        if (visibleSpaceWidth <= fullExpandedSpaceWidth ||
+            visibleSpaceWidth >= halfExpandedSpaceWidth
+        ) {
             isAnimating = true
             clearFocus()
-            if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount != 0) {
+            if ((
+                        visibleSpaceWidth - fullExpandedSpaceWidth
+                                <= halfExpandedSpaceWidth - visibleSpaceWidth
+                        ) && viewState?.purchasedCount != 0
+            ) {
                 setStateHalfExpanded()
-            } else if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount == 0) {
+            } else if ((
+                        visibleSpaceWidth - fullExpandedSpaceWidth
+                                <= halfExpandedSpaceWidth - visibleSpaceWidth
+                        ) && viewState?.purchasedCount == 0
+            ) {
                 setStateCollapsed()
-            } else if (visibleSpaceWidth - fullExpandedSpaceWidth >= halfExpandedSpaceWidth - visibleSpaceWidth) {
+            } else if (visibleSpaceWidth - fullExpandedSpaceWidth
+                >= halfExpandedSpaceWidth - visibleSpaceWidth
+            ) {
                 setStateFullExpanded()
             }
         }
@@ -612,15 +639,14 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     private fun isClick(startX: Float, startY: Float, endX: Float, endY: Float): Boolean {
         val threshold = context.getPixels(7)
-        return max(endX, startX) - min(endX, startX) < threshold.toFloat()
-                &&
+        return max(endX, startX) - min(endX, startX) < threshold.toFloat() &&
                 max(endY, startY) - min(endY, startY) < threshold.toFloat()
     }
 
     /** Increase/decrease [SlidableCounterButtonViewState.purchasedCount] and make roll out/in animation */
     private fun makeRollAnimationAndUpdateCount(target: TextView, increase: Boolean) {
         isAnimating = true
-        if (increase && makeRollAnimation)
+        if (increase && makeRollAnimation) {
             YoYo.with(Techniques.SlideOutUp)
                 .duration(Constants.SLIDE_ANIM_DURATION)
                 .onEnd {
@@ -633,11 +659,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                         .playOn(target)
                 }
                 .playOn(target)
-        else if (increase && !makeRollAnimation)
+        } else if (increase && !makeRollAnimation) {
             increasePiece().also {
                 isAnimating = false
             }
-        else if (!increase && makeRollAnimation)
+        } else if (!increase && makeRollAnimation) {
             YoYo.with(Techniques.SlideOutDown)
                 .duration(Constants.SLIDE_ANIM_DURATION)
                 .onEnd {
@@ -650,10 +676,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                         .playOn(target)
                 }
                 .playOn(target)
-        else if (!increase && !makeRollAnimation)
+        } else if (!increase && !makeRollAnimation) {
             decreasePiece().also {
                 isAnimating = false
             }
+        }
     }
 
     /** Make color animation for Price Text. */
@@ -752,8 +779,9 @@ class SlidableCounterButton @JvmOverloads constructor(
             when (_currentState) {
                 STATE_COLLAPSED -> {
                     setStateCollapsed()
-                    if (animateOnStart)
+                    if (animateOnStart) {
                         cardViewTop.startAnimation(bounceAnimation)
+                    }
                 }
                 STATE_BETWEEN_HALF_FULL -> {
                     setStateHalfExpanded()
@@ -778,7 +806,8 @@ class SlidableCounterButton @JvmOverloads constructor(
                     visibleSpaceWidth.toFloat() == halfExpandedSpaceWidth -> {
                         _currentState = STATE_HALF_EXPANDED
                     }
-                    visibleSpaceWidth > halfExpandedSpaceWidth && visibleSpaceWidth < fullExpandedSpaceWidth -> {
+                    visibleSpaceWidth > halfExpandedSpaceWidth
+                            && visibleSpaceWidth < fullExpandedSpaceWidth -> {
                         _currentState = STATE_BETWEEN_HALF_FULL
                     }
                     visibleSpaceWidth >= fullExpandedSpaceWidth -> {
@@ -789,7 +818,9 @@ class SlidableCounterButton @JvmOverloads constructor(
 
                 val fullWidth = when (_currentState) {
                     STATE_HALF_EXPANDED -> width - halfExpandedSpaceWidth.toInt()
-                    STATE_COLLAPSED, STATE_BETWEEN_HALF_FULL -> width - context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP)
+                    STATE_COLLAPSED, STATE_BETWEEN_HALF_FULL ->
+                        width - context
+                            .getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP)
                     else -> width
                 }
 
@@ -827,19 +858,23 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     /** Set Minus Drawables */
     fun setMinusDrawables(active: Drawable?, inActive: Drawable?) {
-        if (active != null)
+        if (active != null) {
             minusActiveDrawable = active
-        if (inActive != null)
+        }
+        if (inActive != null) {
             minusInactiveDrawable = inActive
+        }
         setMinusButtonState(canDecreasePiece())
     }
 
     /** Set Plus Drawables */
     fun setPlusDrawables(active: Drawable?, inActive: Drawable?) {
-        if (active != null)
+        if (active != null) {
             plusActiveDrawable = active
-        if (inActive != null)
+        }
+        if (inActive != null) {
             plusInactiveDrawable = inActive
+        }
         setPlusButtonState(canIncreasePiece())
     }
 

@@ -7,6 +7,6 @@ import kotlinx.android.parcel.Parcelize
 open class DefaultPriceFormatter : PriceFormatter(), Parcelable {
 
     override fun getFormattedValue(price: Double, pieceValueSign: String?): CharSequence {
-        return "${price.toDouble().getFormattedPrice()} $pieceValueSign"
+        return "${price.getFormattedPrice()} $pieceValueSign"
     }
 }
