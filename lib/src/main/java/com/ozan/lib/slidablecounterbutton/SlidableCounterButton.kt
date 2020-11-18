@@ -203,32 +203,40 @@ class SlidableCounterButton @JvmOverloads constructor(
         cardViewTop.setOnTouchListener touchListener@{ _, motionEvent ->
             when (motionEvent.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    startTouchX = motionEvent.x // Start of the touch X point
-                    startTouchY = motionEvent.y // Start of the touch Y point
+                    startTouchX = motionEvent.x
+                    startTouchY = motionEvent.y
                     touchX = motionEvent.x
-                    requestFocus()
+
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     isSliding = false
-                    endTouchX = motionEvent.x // End of the touch X point
-                    endTouchY = motionEvent.y // End of the touch Y point
+                    endTouchX = motionEvent.x
+                    endTouchY = motionEvent.y
 
                     if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
                         performClick()
-                    } else if (!isAnimating) {
+                    } else {
                         normalizeCurrentState()
                     }
+
+                    clearFocus()
                     requestDisallowInterceptTouchEvent(false)
                     true
                 }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    clearFocus()
+                    normalizeCurrentState()
+                    requestDisallowInterceptTouchEvent(false)
+                    true
+                }
+
                 MotionEvent.ACTION_MOVE -> {
                     handleSlide(motionEvent.x - touchX)
-                    if (abs(motionEvent.x - touchX) > 0 &&
-                        abs(motionEvent.y - startTouchY) == 0.0f
-                    ) {
+
+                    if (abs(motionEvent.x - startTouchX) > halfExpandedSpaceWidth)
                         requestDisallowInterceptTouchEvent(true)
-                    }
 
                     if ((startTouchX - touchX) >
                         context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
@@ -238,8 +246,6 @@ class SlidableCounterButton @JvmOverloads constructor(
                     }
 
                     touchX = motionEvent.x // Update touch point
-
-                    requestFocus()
                     true
                 }
                 else -> true
