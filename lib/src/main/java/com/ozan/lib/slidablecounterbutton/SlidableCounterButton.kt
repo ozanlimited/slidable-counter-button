@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.os.CountDownTimer
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
@@ -21,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
+import com.ozan.lib.slidablecounterbutton.Constants.CLICK_BLOCK_DURATION
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState.*
 import kotlinx.android.synthetic.main.view_slidable_counter_button.view.*
 import kotlin.math.abs
@@ -214,7 +216,13 @@ class SlidableCounterButton @JvmOverloads constructor(
                     endTouchX = motionEvent.x
                     endTouchY = motionEvent.y
 
-                    if (isClick(startTouchX, startTouchY, endTouchX, endTouchY) && !isAnimating) {
+                    if (isClick(
+                            startTouchX,
+                            startTouchY,
+                            endTouchX,
+                            endTouchY
+                        ) && !isAnimating && clickEnabled
+                    ) {
                         performClick()
                     } else {
                         normalizeCurrentState()
@@ -322,10 +330,24 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
 
         buttonPlus.setOnClickListener {
+            fun delayedOutOfStock() {
+                object : CountDownTimer(CLICK_BLOCK_DURATION, 1L) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        buttonPlus.isClickable = false
+                    }
+
+                    override fun onFinish() {
+                        buttonPlus.isClickable = true
+                        outOfStockListener?.outOfStock()
+                        cancel()
+                    }
+                }.start()
+            }
+
             if (canIncreasePiece() && !isAnimating) {
                 makeRollAnimationAndUpdateCount(textViewCounter, true)
             } else if (canIncreasePiece().not() && !isAnimating) {
-                outOfStockListener?.outOfStock()
+                delayedOutOfStock()
             }
         }
 
@@ -500,22 +522,36 @@ class SlidableCounterButton @JvmOverloads constructor(
                 fillAfter = true
             }
 
+        fun delayedOutOfStockAndNormalize() {
+            object : CountDownTimer(CLICK_BLOCK_DURATION, 1L) {
+                override fun onTick(millisUntilFinished: Long) {
+                    clickEnabled = false
+                }
+
+                override fun onFinish() {
+                    clickEnabled = true
+                    requestDisallowInterceptTouchEvent(true)
+                    outOfStockListener?.outOfStock()
+                    normalizeCurrentState()
+                    cancel()
+                }
+            }.start()
+        }
+
         when (_currentState) {
             STATE_HALF_EXPANDED -> {
                 if (canIncreasePiece() && !isAnimating && cardViewBottom.animation == null) {
                     cardViewBottom.startAnimation(popOutAnimation)
                     makeRollAnimationAndUpdateCount(textViewPrice, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
-                    outOfStockListener?.outOfStock()
-                    normalizeCurrentState()
+                    delayedOutOfStockAndNormalize()
                 }
             }
             STATE_COLLAPSED -> {
                 if (canIncreasePiece() && !isAnimating && cardViewTop.animation == null) {
                     cardViewTop.startAnimation(resizeAnimation)
                 } else if (canIncreasePiece().not() && !isAnimating) {
-                    outOfStockListener?.outOfStock()
-                    normalizeCurrentState()
+                    delayedOutOfStockAndNormalize()
                 }
             }
             STATE_BETWEEN_HALF_FULL -> {
@@ -523,8 +559,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     cardViewBottom.startAnimation(popOutAnimation)
                     makeRollAnimationAndUpdateCount(textViewPrice, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
-                    outOfStockListener?.outOfStock()
-                    normalizeCurrentState()
+                    delayedOutOfStockAndNormalize()
                 }
             }
             STATE_FULL_EXPANDED -> {
