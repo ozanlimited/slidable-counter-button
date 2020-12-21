@@ -67,7 +67,7 @@ counterButton.setup(
   </tr>
   <tr>
     <td>app:plusInactiveDrawable</td>
-    <td>integer</td>
+    <td>reference</td>
     <td>Set plus inactive drawable.</td>
   </tr>
   <tr>
