@@ -121,16 +121,10 @@ counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChange
 ## Also, you can use [OutOfStockListener](https://github.com/ozanlimited/slidable-counter-button/blob/4d46f3f8a0c877463726e89a65166b5031f2d488/lib/src/main/java/com/ozan/lib/slidablecounterbutton/SlidableCounterButton.kt#L1015) for handling out of stock situation.
 
 ```kotlin
-counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
-
-            override fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState) {
-                // TODO - Value increased.
+counterButton.setOutOfStockListener(object : SlidableCounterButton.OutOfStockListener {
+            override fun outOfStock() {
+                // TODO - Out of stock.
             }
-
-            override fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState) {
-                // TODO - Value decreased.
-            }
-
         })
 ```
 
