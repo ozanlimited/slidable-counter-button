@@ -102,7 +102,7 @@ counterButton.setPriceFormatter(object : PriceFormatter() {
         })
 ```
 
-## You can use [ValueChangedListener](https://github.com/ozanlimited/slidable-counter-button/blob/4d46f3f8a0c877463726e89a65166b5031f2d488/lib/src/main/java/com/ozan/lib/slidablecounterbutton/SlidableCounterButton.kt#L1010) for observing value chages.
+## You can use [ValueChangedListener](https://github.com/ozanlimited/slidable-counter-button/blob/4d46f3f8a0c877463726e89a65166b5031f2d488/lib/src/main/java/com/ozan/lib/slidablecounterbutton/SlidableCounterButton.kt#L1010) for observing value changes.
 
 ```kotlin
 counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
