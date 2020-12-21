@@ -1,3 +1,5 @@
+<a href="https://github.com/ozanlimited/slidable-counter-button/pulls"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="contributions welcome" /></a>
+<a href="https://ktlint.github.io/"><img src="https://img.shields.io/badge/code%20style-%E2%9D%A4-FF4081.svg" alt="ktlint" /></a>
 [![](https://jitpack.io/v/ozanlimited/slidable-counter-button.svg)](https://jitpack.io/#ozanlimited/slidable-counter-button)
 # Slidable Counter Button
 
