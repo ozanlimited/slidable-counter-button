@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import com.ozan.lib.slidablecounterbutton.PriceFormatter
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButton
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonState
 import com.ozan.lib.slidablecounterbutton.SlidableCounterButtonViewState
+import com.ozan.lib.slidablecounterbutton.ValueFormatter
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,36 +17,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         counterButton.setup(
-            SlidableCounterButtonViewState("My Awesome Product", 499.99, "$", 5),
+            SlidableCounterButtonViewState("My Awesome Product", 5),
             SlidableCounterButtonState.STATE_COLLAPSED
         )
 
-        counterButton.setPriceTextTypeface(Typeface.MONOSPACE)
+        counterButton.setValueTextTypeface(Typeface.MONOSPACE)
         counterButton.setTitleTextTypeface(Typeface.DEFAULT_BOLD)
 
-        counterButton.setPriceFormatter(object : PriceFormatter() {
-            override fun getFormattedValue(price: Double, pieceValueSign: String?): CharSequence =
-                "$ $price"
+        counterButton.setValueFormatter(object : ValueFormatter() {
+            override fun getFormattedValue(count: Int): CharSequence = "${(count * 500)}₺"
         })
 
-        counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
+        counterButton.setCountChangedListener(object : SlidableCounterButton.CountChangedListener {
 
-            override fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState) {
+            override fun onCountIncreased(count: Int, currentState: SlidableCounterButtonState) {
                 Toast.makeText(
                     this@MainActivity,
-                    "Value Increased : $count\n$currentState",
+                    "Count Increased : $count\n$currentState",
                     Toast.LENGTH_SHORT
                 ).show()
             }
 
-            override fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState) {
+            override fun onCountDecreased(count: Int, currentState: SlidableCounterButtonState) {
                 Toast.makeText(
                     this@MainActivity,
-                    "Value Decreased : $count\n$currentState",
+                    "Count Decreased : $count\n$currentState",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-
         })
 
         counterButton.setOutOfStockListener(object : SlidableCounterButton.OutOfStockListener {
