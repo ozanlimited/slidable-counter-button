@@ -15,7 +15,7 @@ internal class SlidableCounterButtonSavedState : View.BaseSavedState {
         currentState = source.readParcelable(SlidableCounterButtonState::class.java.classLoader)
             ?: SlidableCounterButtonState.STATE_COLLAPSED
         viewState = source.readParcelable(SlidableCounterButtonViewState::class.java.classLoader)
-            ?: SlidableCounterButtonViewState("", 0.0, "", 0)
+            ?: SlidableCounterButtonViewState("", 0, 0)
         minusEnabled = source.readByte().toInt() != 0
         plusEnabled = source.readByte().toInt() != 0
     }
