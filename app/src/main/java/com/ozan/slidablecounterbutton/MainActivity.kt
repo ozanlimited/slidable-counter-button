@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         counterButton.setup(
-            SlidableCounterButtonViewState("My Awesome Product", 5),
+            SlidableCounterButtonViewState("My Awesome Product", availableCount = 5),
             SlidableCounterButtonState.STATE_COLLAPSED
         )
 
