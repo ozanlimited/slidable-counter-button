@@ -792,11 +792,21 @@ class SlidableCounterButton @JvmOverloads constructor(
     fun setViewState(state: SlidableCounterButtonViewState) {
         clickEnabled = true
         viewState = state
-        textViewTitle.text = state.title
-        textViewCounter.text = state.purchasedCount.toString()
-        textViewSmallCounter.text = state.purchasedCount.toString()
-        textViewPrice.text =
-            priceFormatter?.getFormattedValue(state.getTotalPrice().orZero(), state.pieceValueSign)
+        if (state.title != textViewTitle.text)
+            textViewTitle.text = state.title
+        if (state.purchasedCount.toString() != textViewCounter.text)
+            textViewCounter.text = state.purchasedCount.toString()
+        if (state.purchasedCount.toString() != textViewSmallCounter.text)
+            textViewSmallCounter.text = state.purchasedCount.toString()
+        if (priceFormatter?.getFormattedValue(
+                state.getTotalPrice().orZero(),
+                state.pieceValueSign
+            ) != textViewPrice.text
+        )
+            textViewPrice.text = priceFormatter?.getFormattedValue(
+                state.getTotalPrice().orZero(),
+                state.pieceValueSign
+            )
         setMinusButtonState(canDecreasePiece())
         setPlusButtonState(canIncreasePiece())
     }
