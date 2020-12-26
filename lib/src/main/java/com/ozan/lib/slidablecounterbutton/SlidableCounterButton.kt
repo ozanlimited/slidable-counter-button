@@ -103,7 +103,7 @@ class SlidableCounterButton @JvmOverloads constructor(
      * Gives callback when value changed.
      */
 
-    private var valueChangedListener: ValueChangedListener? = null
+    private var countChangedListener: CountChangedListener? = null
 
     /**
      * Gives callback when out of stock.
@@ -118,10 +118,10 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var makeRollAnimation = true
 
     /**
-     * Used for formatting price value.
+     * Used for formatting the value.
      */
 
-    private var priceFormatter: PriceFormatter? = DefaultPriceFormatter()
+    private var valueFormatter: ValueFormatter? = DefaultValueFormatter()
 
     /**
      * ViewState
@@ -177,11 +177,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             setMinusButtonState(state.minusEnabled)
             setPlusButtonState(state.plusEnabled)
 
-            textViewPrice.text =
-                priceFormatter?.getFormattedValue(
-                    viewState?.getTotalPrice().orZero(),
-                    viewState?.pieceValueSign
-                )
+            textViewValue.text = valueFormatter?.getFormattedValue(state.viewState?.count.orZero())
         } else {
             super.onRestoreInstanceState(state)
         }
@@ -248,7 +244,7 @@ class SlidableCounterButton @JvmOverloads constructor(
 
                     if ((startTouchX - touchX) >
                         context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
-                        viewState?.purchasedCount == 0 && canIncreasePiece()
+                        viewState?.count == 0 && canIncreasePiece()
                     ) {
                         increasePiece()
                     }
@@ -306,16 +302,13 @@ class SlidableCounterButton @JvmOverloads constructor(
         cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
         textViewSmallCounter.setTextColor(defaultTextColor)
         textViewCounter.setTextColor(defaultTextColor)
-        textViewPrice.setTextColor(defaultTextColor)
+        textViewValue.setTextColor(defaultTextColor)
         textViewTitle.setTextColor(defaultTextColor)
 
         setMinusButtonState(canDecreasePiece())
 
-        textViewPrice.text =
-            priceFormatter?.getFormattedValue(
-                viewState?.getTotalPrice().orZero(),
-                viewState?.pieceValueSign
-            )
+        textViewValue.text =
+            valueFormatter?.getFormattedValue(viewState?.count.orZero())
 
         textViewCounter.addTextChangedListener {
             makeColorAnimation()
@@ -389,13 +382,13 @@ class SlidableCounterButton @JvmOverloads constructor(
             if ((
                         visibleSpaceWidth - fullExpandedSpaceWidth
                                 <= halfExpandedSpaceWidth - visibleSpaceWidth
-                        ) && viewState?.purchasedCount != 0
+                        ) && viewState?.count != 0
             ) {
                 setStateHalfExpanded()
             } else if ((
                         visibleSpaceWidth - fullExpandedSpaceWidth
                                 <= halfExpandedSpaceWidth - visibleSpaceWidth
-                        ) && viewState?.purchasedCount == 0
+                        ) && viewState?.count == 0
             ) {
                 setStateCollapsed()
             } else if (visibleSpaceWidth - fullExpandedSpaceWidth
@@ -542,7 +535,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             STATE_HALF_EXPANDED -> {
                 if (canIncreasePiece() && !isAnimating && cardViewBottom.animation == null) {
                     cardViewBottom.startAnimation(popOutAnimation)
-                    makeRollAnimationAndUpdateCount(textViewPrice, true)
+                    makeRollAnimationAndUpdateCount(textViewValue, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     delayedOutOfStockAndNormalize()
                 }
@@ -557,7 +550,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             STATE_BETWEEN_HALF_FULL -> {
                 if (canIncreasePiece() && !isAnimating && cardViewBottom.animation == null) {
                     cardViewBottom.startAnimation(popOutAnimation)
-                    makeRollAnimationAndUpdateCount(textViewPrice, true)
+                    makeRollAnimationAndUpdateCount(textViewValue, true)
                 } else if (canIncreasePiece().not() && !isAnimating) {
                     delayedOutOfStockAndNormalize()
                 }
@@ -610,69 +603,63 @@ class SlidableCounterButton @JvmOverloads constructor(
         return true
     }
 
-    /** Decrease [SlidableCounterButtonViewState.purchasedCount] */
+    /** Decrease [SlidableCounterButtonViewState.count] */
     fun decreasePiece() {
         viewState?.let {
-            val current = it.purchasedCount
+            val current = it.count
             setPlusButtonState(true)
 
-            setViewState(it.copy(purchasedCount = current?.minus(1)))
+            setViewState(it.copy(count = current?.minus(1)))
             setMinusButtonState(canDecreasePiece())
 
-            valueChangedListener?.onValueDecreased(
-                viewState?.purchasedCount.orZero(),
+            countChangedListener?.onCountDecreased(
+                viewState?.count.orZero(),
                 currentState
             )
 
-            textViewPrice.text =
-                priceFormatter?.getFormattedValue(
-                    viewState?.getTotalPrice().orZero(),
-                    viewState?.pieceValueSign
-                )
+            textViewValue.text =
+                valueFormatter?.getFormattedValue(viewState?.count.orZero())
 
-            textViewCounter.text = viewState?.purchasedCount.toString()
-            textViewSmallCounter.text = viewState?.purchasedCount.toString()
+            textViewCounter.text = viewState?.count.toString()
+            textViewSmallCounter.text = viewState?.count.toString()
         }
     }
 
     /** Returns true if can decrease otherwise false. */
     fun canDecreasePiece(): Boolean {
         viewState?.let {
-            val current = it.purchasedCount
+            val current = it.count
             return current?.minus(1) != -1
         }
         return false
     }
 
-    /** Increase [SlidableCounterButtonViewState.purchasedCount] */
+    /** Increase [SlidableCounterButtonViewState.count] */
     fun increasePiece() {
         viewState?.let {
-            val current = it.purchasedCount
+            val current = it.count
 
-            setViewState(it.copy(purchasedCount = current?.plus(1)))
+            setViewState(it.copy(count = current?.plus(1)))
             setPlusButtonState(canIncreasePiece())
             setMinusButtonState(true)
 
-            valueChangedListener?.onValueIncreased(
-                viewState?.purchasedCount.orZero(),
+            countChangedListener?.onCountIncreased(
+                viewState?.count.orZero(),
                 currentState
             )
 
-            textViewPrice.text =
-                priceFormatter?.getFormattedValue(
-                    viewState?.getTotalPrice().orZero(),
-                    viewState?.pieceValueSign
-                )
+            textViewValue.text =
+                valueFormatter?.getFormattedValue(viewState?.count.orZero())
 
-            textViewCounter.text = viewState?.purchasedCount.toString()
-            textViewSmallCounter.text = viewState?.purchasedCount.toString()
+            textViewCounter.text = viewState?.count.toString()
+            textViewSmallCounter.text = viewState?.count.toString()
         }
     }
 
     /** Returns true if can increase otherwise false. */
     fun canIncreasePiece(): Boolean {
         viewState?.let {
-            val current = it.purchasedCount
+            val current = it.count
             return current != it.availableCount
         }
         return false
@@ -684,7 +671,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 max(endY, startY) - min(endY, startY) < threshold.toFloat()
     }
 
-    /** Increase/decrease [SlidableCounterButtonViewState.purchasedCount] and make roll out/in animation */
+    /** Increase/decrease [SlidableCounterButtonViewState.count] and make roll out/in animation */
     private fun makeRollAnimationAndUpdateCount(target: TextView, increase: Boolean) {
         isAnimating = true
         if (increase && makeRollAnimation) {
@@ -724,7 +711,7 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /** Make color animation for Price Text. */
+    /** Make color animation for Value Text. */
     private fun makeColorAnimation() {
         val animDefaultToAccent =
             ValueAnimator.ofObject(ArgbEvaluator(), defaultTextColor, accentTextColor).apply {
@@ -737,13 +724,13 @@ class SlidableCounterButton @JvmOverloads constructor(
             }
 
         animDefaultToAccent.addUpdateListener { animator ->
-            textViewPrice.setTextColor(
+            textViewValue.setTextColor(
                 animator.animatedValue as Int
             )
         }
 
         animAccentToDefault.addUpdateListener { animator ->
-            textViewPrice.setTextColor(
+            textViewValue.setTextColor(
                 animator.animatedValue as Int
             )
         }
@@ -793,10 +780,10 @@ class SlidableCounterButton @JvmOverloads constructor(
         clickEnabled = true
         viewState = state
         textViewTitle.text = state.title
-        textViewCounter.text = state.purchasedCount.toString()
-        textViewSmallCounter.text = state.purchasedCount.toString()
-        textViewPrice.text =
-            priceFormatter?.getFormattedValue(state.getTotalPrice().orZero(), state.pieceValueSign)
+        textViewCounter.text = state.count.toString()
+        textViewSmallCounter.text = state.count.toString()
+        textViewValue.text =
+            valueFormatter?.getFormattedValue(state.count.orZero())
         setMinusButtonState(canDecreasePiece())
         setPlusButtonState(canIncreasePiece())
     }
@@ -865,7 +852,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     else -> width
                 }
 
-                textViewPrice.alpha =
+                textViewValue.alpha =
                     1 - ((fullWidth - right) / fullExpandedSpaceWidth)
                 linearLayoutCounterContainer.alpha =
                     ((fullWidth - right) / fullExpandedSpaceWidth)
@@ -877,9 +864,9 @@ class SlidableCounterButton @JvmOverloads constructor(
         }
     }
 
-    /** Set [ValueChangedListener] */
-    fun setValueChangedListener(listener: ValueChangedListener) {
-        valueChangedListener = listener
+    /** Set [CountChangedListener] */
+    fun setCountChangedListener(listener: CountChangedListener) {
+        countChangedListener = listener
     }
 
     /** Set [OutOfStockListener] */
@@ -887,14 +874,11 @@ class SlidableCounterButton @JvmOverloads constructor(
         outOfStockListener = listener
     }
 
-    /** Set [PriceFormatter] */
-    fun setPriceFormatter(formatter: PriceFormatter) {
-        priceFormatter = formatter
-        textViewPrice.text =
-            priceFormatter?.getFormattedValue(
-                viewState?.pieceValue.orZero(),
-                viewState?.pieceValueSign
-            )
+    /** Set [ValueFormatter] */
+    fun setValueFormatter(formatter: ValueFormatter) {
+        valueFormatter = formatter
+        textViewValue.text =
+            valueFormatter?.getFormattedValue(viewState?.count.orZero())
     }
 
     /** Set Minus Drawables */
@@ -970,8 +954,8 @@ class SlidableCounterButton @JvmOverloads constructor(
     /** Set title text size
      * @param size The desired size in the SP.
      */
-    fun setPriceTextSize(size: Float) {
-        textViewPrice.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+    fun setValueTextSize(size: Float) {
+        textViewValue.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         calculateViews()
     }
 
@@ -1002,14 +986,14 @@ class SlidableCounterButton @JvmOverloads constructor(
     /** Set title text size
      * @param size The desired size in the SP.
      */
-    fun setPriceTextTypeface(typeface: Typeface) {
-        textViewPrice.typeface = typeface
+    fun setValueTextTypeface(typeface: Typeface) {
+        textViewValue.typeface = typeface
         calculateViews()
     }
 
-    interface ValueChangedListener {
-        fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState)
-        fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState)
+    interface CountChangedListener {
+        fun onCountIncreased(count: Int, currentState: SlidableCounterButtonState)
+        fun onCountDecreased(count: Int, currentState: SlidableCounterButtonState)
     }
 
     interface OutOfStockListener {

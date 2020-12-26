@@ -25,7 +25,7 @@ dependencies {
 ## Basic Usage
 ```kotlin
 counterButton.setup(
-            SlidableCounterButtonViewState("My Awesome Product", 499.99, "$", 5),
+            SlidableCounterButtonViewState("My Awesome Product", availableCount = 5),
             SlidableCounterButtonState.STATE_COLLAPSED
         )
 ```
@@ -93,26 +93,25 @@ counterButton.setup(
 </tbody>
 </table>
 
-## For formatting your price label you can use [PriceFormatter](https://github.com/ozanlimited/slidable-counter-button/blob/master/lib/src/main/java/com/ozan/lib/slidablecounterbutton/PriceFormatter.kt)
+## For formatting your value label you can use [ValueFormatter](https://github.com/ozanlimited/slidable-counter-button/blob/master/lib/src/main/java/com/ozan/lib/slidablecounterbutton/ValueFormatter.kt)
 
 ```kotlin
-counterButton.setPriceFormatter(object : PriceFormatter() {
-            override fun getFormattedValue(price: Double, pieceValueSign: String?): CharSequence =
-                // TODO - Format price
+counterButton.setValueFormatter(object : ValueFormatter() {
+            override fun getFormattedValue(count: Int): CharSequence = "$count Piece"
         })
 ```
 
-## You can use [ValueChangedListener](https://github.com/ozanlimited/slidable-counter-button/blob/4d46f3f8a0c877463726e89a65166b5031f2d488/lib/src/main/java/com/ozan/lib/slidablecounterbutton/SlidableCounterButton.kt#L1010) for observing value changes.
+## You can use [CountChangedListener](https://github.com/ozanlimited/slidable-counter-button/blob/4d46f3f8a0c877463726e89a65166b5031f2d488/lib/src/main/java/com/ozan/lib/slidablecounterbutton/SlidableCounterButton.kt#L1010) for observing count changes.
 
 ```kotlin
-counterButton.setValueChangedListener(object : SlidableCounterButton.ValueChangedListener {
+counterButton.setCountChangedListener(object : SlidableCounterButton.CountChangedListener {
 
-            override fun onValueIncreased(count: Int, currentState: SlidableCounterButtonState) {
-                // TODO - Value increased.
+            override fun onCountIncreased(count: Int, currentState: SlidableCounterButtonState) {
+                // TODO - Count increased.
             }
 
-            override fun onValueDecreased(count: Int, currentState: SlidableCounterButtonState) {
-                // TODO - Value decreased.
+            override fun onCountDecreased(count: Int, currentState: SlidableCounterButtonState) {
+                // TODO - Count decreased.
             }
 
         })
