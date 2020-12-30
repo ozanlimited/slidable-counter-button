@@ -118,6 +118,12 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var makeRollAnimation = true
 
     /**
+     * Make text color animation on count changed.
+     */
+
+    private var makeTextColorAnimation = true
+
+    /**
      * Used for formatting price value.
      */
 
@@ -726,6 +732,9 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     /** Make color animation for Price Text. */
     private fun makeColorAnimation() {
+        if (makeTextColorAnimation.not())
+            return
+
         val animDefaultToAccent =
             ValueAnimator.ofObject(ArgbEvaluator(), defaultTextColor, accentTextColor).apply {
                 duration = Constants.COLOR_ANIM_DURATION
@@ -1005,6 +1014,13 @@ class SlidableCounterButton @JvmOverloads constructor(
     fun setPriceTextTypeface(typeface: Typeface) {
         textViewPrice.typeface = typeface
         calculateViews()
+    }
+
+    /** Set text color animation is enabled on count changed.
+     * @param isEnabled enabled or disabled.
+     */
+    fun setEnabledTextColorAnimation(isEnabled: Boolean) {
+        makeTextColorAnimation = isEnabled
     }
 
     interface ValueChangedListener {
