@@ -636,6 +636,9 @@ class SlidableCounterButton @JvmOverloads constructor(
                     viewState?.pieceValueSign
                 )
 
+            if (viewState?.purchasedCount.orZero() == 0)
+                setStateCollapsed()
+
             textViewCounter.text = viewState?.purchasedCount.toString()
             textViewSmallCounter.text = viewState?.purchasedCount.toString()
         }

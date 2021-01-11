@@ -6,5 +6,5 @@ object Constants {
     const val SLIDE_ANIM_DURATION = 200L
     const val COLOR_ANIM_DURATION = 400L
     const val CLICK_BLOCK_DURATION = 400L
-    const val DEFAULT_RIGHT_MARGIN_IN_DP = 8
+    const val DEFAULT_RIGHT_MARGIN_IN_DP = 4
 }
