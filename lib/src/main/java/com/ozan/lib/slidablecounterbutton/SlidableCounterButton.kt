@@ -494,6 +494,9 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     override fun performClick(): Boolean {
         super.performClick()
+        if (!clickEnabled)
+            return false
+
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val currentCardViewBottomWidth = cardViewBottom.measuredWidth
         val diff = currentCardViewBottomWidth - currentCardViewTopWidth
@@ -616,8 +619,31 @@ class SlidableCounterButton @JvmOverloads constructor(
         return true
     }
 
+    fun showProgressView() {
+        if (_currentState != STATE_FULL_EXPANDED && viewState?.purchasedCount != 0) {
+            textViewPrice.hide()
+            outerProgressBar.visible()
+            clickEnabled = false
+        } else {
+            textViewCounter.hide()
+            innerProgressBar.visible()
+            clickEnabled = false
+        }
+    }
+
+    fun hideProgressView() {
+        clickEnabled = true
+        textViewCounter.visible()
+        textViewPrice.visible()
+        innerProgressBar.hide()
+        outerProgressBar.hide()
+    }
+
     /** Decrease [SlidableCounterButtonViewState.purchasedCount] */
     fun decreasePiece() {
+        if (!clickEnabled)
+            return
+
         viewState?.let {
             val current = it.purchasedCount
             setPlusButtonState(true)
@@ -655,6 +681,9 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     /** Increase [SlidableCounterButtonViewState.purchasedCount] */
     fun increasePiece() {
+        if (!clickEnabled)
+            return
+
         viewState?.let {
             val current = it.purchasedCount
 

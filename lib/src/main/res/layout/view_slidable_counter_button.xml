@@ -49,6 +49,14 @@
                     tools:text="5"
                     tools:textColor="@android:color/white" />
 
+                <ProgressBar
+                    android:id="@+id/innerProgressBar"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/color_white"
+                    android:visibility="gone" />
+
                 <ImageButton
                     android:id="@+id/buttonPlus"
                     android:layout_width="wrap_content"
@@ -116,6 +124,17 @@
                 android:gravity="center_vertical"
                 tools:text="100,0 TL"
                 tools:textColor="@android:color/white" />
+
+            <ProgressBar
+                android:id="@+id/outerProgressBar"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/margin_12dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/color_white"
+                android:visibility="gone" />
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
