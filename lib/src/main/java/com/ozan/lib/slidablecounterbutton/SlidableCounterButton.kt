@@ -200,7 +200,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 textViewSmallCounter.measuredWidth.toFloat()
 
             fullExpandedSpaceWidth =
-                linearLayoutCounterContainer.measuredWidth.toFloat()
+                constraintCounterContainer.measuredWidth.toFloat()
 
             measureComplete()
         }
@@ -427,7 +427,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_COLLAPSED
                 textViewSmallCounter.invisible()
-                linearLayoutCounterContainer.visible()
+                constraintCounterContainer.visible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -453,7 +453,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_HALF_EXPANDED
                 textViewSmallCounter.visible()
-                linearLayoutCounterContainer.invisible()
+                constraintCounterContainer.invisible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -480,7 +480,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             override fun onAnimationStart(p0: Animation?) {
                 _currentState = STATE_FULL_EXPANDED
                 textViewSmallCounter.invisible()
-                linearLayoutCounterContainer.visible()
+                constraintCounterContainer.visible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -605,7 +605,7 @@ class SlidableCounterButton @JvmOverloads constructor(
             Animation.AnimationListener {
             override fun onAnimationStart(p0: Animation?) {
                 textViewSmallCounter.visible()
-                linearLayoutCounterContainer.invisible()
+                constraintCounterContainer.invisible()
             }
 
             override fun onAnimationRepeat(p0: Animation?) {}
@@ -620,14 +620,14 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     fun showProgressView() {
-        if (_currentState != STATE_FULL_EXPANDED && viewState?.purchasedCount != 0) {
-            textViewPrice.hide()
+        clickEnabled = if (_currentState != STATE_FULL_EXPANDED && viewState?.purchasedCount != 0) {
+            textViewPrice.invisible()
             outerProgressBar.visible()
-            clickEnabled = false
+            false
         } else {
-            textViewCounter.hide()
+            textViewCounter.invisible()
             innerProgressBar.visible()
-            clickEnabled = false
+            false
         }
     }
 
@@ -894,7 +894,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                     }
                     visibleSpaceWidth >= fullExpandedSpaceWidth -> {
                         _currentState = STATE_FULL_EXPANDED
-                        linearLayoutCounterContainer.visible()
+                        constraintCounterContainer.visible()
                     }
                 }
 
@@ -908,7 +908,7 @@ class SlidableCounterButton @JvmOverloads constructor(
 
                 textViewPrice.alpha =
                     1 - ((fullWidth - right) / fullExpandedSpaceWidth)
-                linearLayoutCounterContainer.alpha =
+                constraintCounterContainer.alpha =
                     ((fullWidth - right) / fullExpandedSpaceWidth)
                 textViewSmallCounter.alpha =
                     1 - ((fullWidth - right) / fullExpandedSpaceWidth)

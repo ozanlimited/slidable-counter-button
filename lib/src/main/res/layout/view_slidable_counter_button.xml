@@ -22,8 +22,8 @@
             android:paddingTop="@dimen/padding_16dp"
             android:paddingBottom="@dimen/padding_16dp">
 
-            <LinearLayout
-                android:id="@+id/linearLayoutCounterContainer"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintCounterContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -39,34 +39,54 @@
                     android:layout_height="match_parent"
                     android:background="@color/color_transparent"
                     android:paddingStart="@dimen/padding_8dp"
-                    android:paddingEnd="@dimen/padding_8dp"
-                    android:src="@drawable/ic_solid_minus_inactive" />
+                    android:src="@drawable/ic_solid_minus_inactive"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/textViewCounter"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/textViewCounter"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/padding_8dp"
+                    android:paddingEnd="@dimen/padding_8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/buttonPlus"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintTop_toTopOf="parent"
                     tools:text="5"
                     tools:textColor="@android:color/white" />
 
                 <ProgressBar
                     android:id="@+id/innerProgressBar"
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:indeterminate="true"
                     android:indeterminateTint="@color/color_white"
-                    android:visibility="gone" />
+                    android:paddingStart="@dimen/padding_4dp"
+                    android:paddingEnd="@dimen/padding_4dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/buttonPlus"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintStart_toEndOf="@id/buttonMinus"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
                     android:id="@+id/buttonPlus"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@color/color_transparent"
-                    android:paddingStart="@dimen/padding_8dp"
                     android:paddingEnd="@dimen/padding_8dp"
-                    android:src="@drawable/ic_solid_plus_active" />
+                    android:src="@drawable/ic_solid_plus_active"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_weight="1"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/textViewSmallCounter"
@@ -93,7 +113,8 @@
         android:layout_marginEnd="4dp"
         app:cardCornerRadius="@dimen/radius_8dp"
         app:cardElevation="0dp"
-        tools:cardBackgroundColor="@color/color_dark_grey">
+        tools:cardBackgroundColor="@color/color_dark_grey"
+        tools:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/relativeLayoutTop"
