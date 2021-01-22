@@ -257,6 +257,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                         viewState?.purchasedCount == 0 && canIncreasePiece()
                     ) {
                         increasePiece()
+                    } else if ((startTouchX - touchX) >
+                        context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
+                        viewState?.purchasedCount == 0 && canIncreasePiece().not()
+                    ) {
+                        outOfStockListener?.outOfStock()
                     }
 
                     touchX = motionEvent.x // Update touch point
