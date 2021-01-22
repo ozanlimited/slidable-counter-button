@@ -85,6 +85,12 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var isSliding = false
 
     /**
+     * Gives information can trigger out of stock or not.
+     */
+
+    private var triggerOutOfStockOnSwipe = true
+
+    /**
      * Used for detecting start/end [MotionEvent] x points.
      */
 
@@ -219,6 +225,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_UP -> {
                     isSliding = false
+                    triggerOutOfStockOnSwipe = true
                     endTouchX = motionEvent.x
                     endTouchY = motionEvent.y
 
@@ -240,6 +247,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
+                    triggerOutOfStockOnSwipe = true
                     clearFocus()
                     normalizeCurrentState()
                     requestDisallowInterceptTouchEvent(false)
@@ -259,9 +267,10 @@ class SlidableCounterButton @JvmOverloads constructor(
                         increasePiece()
                     } else if ((startTouchX - touchX) >
                         context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
-                        viewState?.purchasedCount == 0 && canIncreasePiece().not()
+                        viewState?.purchasedCount == 0 && canIncreasePiece().not() && triggerOutOfStockOnSwipe
                     ) {
                         outOfStockListener?.outOfStock()
+                        triggerOutOfStockOnSwipe = false
                     }
 
                     touchX = motionEvent.x // Update touch point
