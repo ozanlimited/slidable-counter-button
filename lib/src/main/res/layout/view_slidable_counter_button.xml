@@ -33,7 +33,7 @@
                 android:paddingStart="@dimen/padding_8dp"
                 android:paddingEnd="@dimen/padding_8dp">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/buttonMinus"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -53,9 +53,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:paddingStart="@dimen/padding_8dp"
-                    android:paddingTop="@dimen/padding_8dp"
                     android:paddingEnd="@dimen/padding_8dp"
-                    android:paddingBottom="@dimen/padding_8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/buttonPlus"
                     app:layout_constraintHorizontal_weight="1"
@@ -78,7 +76,7 @@
                     app:layout_constraintStart_toEndOf="@id/buttonMinus"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/buttonPlus"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -105,6 +103,7 @@
                 android:visibility="invisible"
                 tools:text="5"
                 tools:textColor="@android:color/white" />
+
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>
