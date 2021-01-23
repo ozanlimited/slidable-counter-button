@@ -18,7 +18,7 @@ allprojects {
 Step 2. Add the dependency
 ```gradle
 dependencies {
-	implementation 'com.github.ozanlimited:slidable-counter-button:1.1.8'
+	implementation 'com.github.ozanlimited:slidable-counter-button:1.1.9'
 }
 ```
 
