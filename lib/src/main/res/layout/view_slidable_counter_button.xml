@@ -119,7 +119,7 @@
         app:cardCornerRadius="@dimen/radius_8dp"
         app:cardElevation="0dp"
         tools:cardBackgroundColor="@color/color_dark_grey"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <RelativeLayout
             android:id="@+id/relativeLayoutTop"

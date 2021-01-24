@@ -3,7 +3,9 @@ package com.ozan.lib.slidablecounterbutton
 import android.content.Context
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.core.view.children
 import java.text.DecimalFormat
 
 fun Double.getFormattedPrice(): String {
@@ -79,4 +81,13 @@ fun View.invisible() {
 
 fun View.visible() {
     this.visibility = View.VISIBLE
+}
+
+internal fun View.isUserInteractionEnabled(enabled: Boolean) {
+    isEnabled = enabled
+    if (this is ViewGroup && this.childCount > 0) {
+        this.children.forEach {
+            it.isUserInteractionEnabled(enabled)
+        }
+    }
 }

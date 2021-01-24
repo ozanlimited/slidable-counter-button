@@ -4,4 +4,7 @@
     <color name="color_white">#FFFFFF</color>
     <color name="color_transparent">#00000000</color>
     <color name="color_dark_grey">#333333</color>
+    <color name="color_text_disabled">#959595</color>
+    <color name="color_card_top_disabled">#434343</color>
+    <color name="color_card_bottom_disabled">#941a5e</color>
 </resources>

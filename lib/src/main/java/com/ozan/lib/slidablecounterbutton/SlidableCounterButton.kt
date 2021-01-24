@@ -7,6 +7,8 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.CountDownTimer
 import android.os.Parcelable
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
@@ -19,7 +21,6 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
 import com.daimajia.androidanimations.library.Techniques
 import com.daimajia.androidanimations.library.YoYo
 import com.ozan.lib.slidablecounterbutton.Constants.CLICK_BLOCK_DURATION
@@ -91,6 +92,12 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var triggerOutOfStockOnSwipe = true
 
     /**
+     * Gives information about isDisabled or not.
+     */
+
+    private var isDisabled = false
+
+    /**
      * Used for detecting start/end [MotionEvent] x points.
      */
 
@@ -151,9 +158,13 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var plusActiveDrawable: Drawable? = null
     private var plusInactiveDrawable: Drawable? = null
     private var defaultTextColor by Delegates.notNull<Int>()
+    private var disabledTextColor by Delegates.notNull<Int>()
+    private var disabledCardTopColor by Delegates.notNull<Int>()
+    private var disabledCardBottomColor by Delegates.notNull<Int>()
     private var accentTextColor by Delegates.notNull<Int>()
     private var cardViewTopBackgroundColor by Delegates.notNull<Int>()
     private var cardViewBottomBackgroundColor by Delegates.notNull<Int>()
+    private lateinit var textViewPriceTextChangeListener: TextWatcher
 
     init {
         LayoutInflater.from(context).inflate(
@@ -304,6 +315,11 @@ class SlidableCounterButton @JvmOverloads constructor(
                         R.styleable.SlidableCounterButton_defaultTextColor,
                         ContextCompat.getColor(context, R.color.color_white)
                     )
+                disabledTextColor = ContextCompat.getColor(context, R.color.color_text_disabled)
+                disabledCardTopColor =
+                    ContextCompat.getColor(context, R.color.color_card_top_disabled)
+                disabledCardBottomColor =
+                    ContextCompat.getColor(context, R.color.color_card_bottom_disabled)
                 accentTextColor =
                     typedArray.getColor(
                         R.styleable.SlidableCounterButton_accentTextColor,
@@ -337,9 +353,19 @@ class SlidableCounterButton @JvmOverloads constructor(
                 viewState?.pieceValueSign
             )
 
-        textViewCounter.addTextChangedListener {
-            makeColorAnimation()
+        textViewPriceTextChangeListener = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                makeColorAnimation()
+            }
         }
+
+        textViewPrice.addTextChangedListener(textViewPriceTextChangeListener)
 
         buttonMinus.setOnClickListener {
             if (canDecreasePiece() && !isAnimating) {
@@ -406,20 +432,11 @@ class SlidableCounterButton @JvmOverloads constructor(
         ) {
             isAnimating = true
             clearFocus()
-            if ((
-                        visibleSpaceWidth - fullExpandedSpaceWidth
-                                <= halfExpandedSpaceWidth - visibleSpaceWidth
-                        ) && viewState?.purchasedCount != 0
-            ) {
+            if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount != 0) {
                 setStateHalfExpanded()
-            } else if ((
-                        visibleSpaceWidth - fullExpandedSpaceWidth
-                                <= halfExpandedSpaceWidth - visibleSpaceWidth
-                        ) && viewState?.purchasedCount == 0
-            ) {
+            } else if ((visibleSpaceWidth - fullExpandedSpaceWidth <= halfExpandedSpaceWidth - visibleSpaceWidth) && viewState?.purchasedCount == 0) {
                 setStateCollapsed()
-            } else if (visibleSpaceWidth - fullExpandedSpaceWidth
-                >= halfExpandedSpaceWidth - visibleSpaceWidth
+            } else if (visibleSpaceWidth - fullExpandedSpaceWidth >= halfExpandedSpaceWidth - visibleSpaceWidth
             ) {
                 setStateFullExpanded()
             }
@@ -792,15 +809,17 @@ class SlidableCounterButton @JvmOverloads constructor(
             }
 
         animDefaultToAccent.addUpdateListener { animator ->
-            textViewPrice.setTextColor(
-                animator.animatedValue as Int
-            )
+            if (isDisabled.not())
+                textViewPrice.setTextColor(
+                    animator.animatedValue as Int
+                )
         }
 
         animAccentToDefault.addUpdateListener { animator ->
-            textViewPrice.setTextColor(
-                animator.animatedValue as Int
-            )
+            if (isDisabled.not())
+                textViewPrice.setTextColor(
+                    animator.animatedValue as Int
+                )
         }
 
         animDefaultToAccent.doOnEnd { animDefaultToAccent.removeAllListeners() }
@@ -972,6 +991,30 @@ class SlidableCounterButton @JvmOverloads constructor(
             plusInactiveDrawable = inActive
         }
         setPlusButtonState(canIncreasePiece())
+    }
+
+    /** Set isDisabled */
+    fun setDisabled(isDisabled: Boolean) {
+        this.isDisabled = isDisabled
+        isUserInteractionEnabled(isDisabled.not())
+
+        if (isDisabled) {
+            textViewPrice.removeTextChangedListener(textViewPriceTextChangeListener)
+            cardViewTop.setCardBackgroundColor(disabledCardTopColor)
+            cardViewBottom.setCardBackgroundColor(disabledCardBottomColor)
+            textViewSmallCounter.setTextColor(disabledTextColor)
+            textViewCounter.setTextColor(disabledTextColor)
+            textViewTitle.setTextColor(disabledTextColor)
+            textViewPrice.setTextColor(disabledTextColor)
+        } else {
+            textViewPrice.addTextChangedListener(textViewPriceTextChangeListener)
+            cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
+            cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
+            textViewSmallCounter.setTextColor(defaultTextColor)
+            textViewCounter.setTextColor(defaultTextColor)
+            textViewPrice.setTextColor(defaultTextColor)
+            textViewTitle.setTextColor(defaultTextColor)
+        }
     }
 
     /** Set Default Text Color */
