@@ -266,6 +266,9 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
 
                 MotionEvent.ACTION_MOVE -> {
+                    if (isDisabled)
+                        return@touchListener true
+
                     handleSlide(motionEvent.x - touchX)
 
                     if (abs(motionEvent.x - startTouchX) > halfExpandedSpaceWidth)
@@ -527,6 +530,11 @@ class SlidableCounterButton @JvmOverloads constructor(
         super.performClick()
         if (!clickEnabled)
             return false
+
+        if (isDisabled) {
+            outOfStockListener?.outOfStock()
+            return false
+        }
 
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val currentCardViewBottomWidth = cardViewBottom.measuredWidth
@@ -996,7 +1004,6 @@ class SlidableCounterButton @JvmOverloads constructor(
     /** Set isDisabled */
     fun setDisabled(isDisabled: Boolean) {
         this.isDisabled = isDisabled
-        isUserInteractionEnabled(isDisabled.not())
 
         if (isDisabled) {
             textViewPrice.removeTextChangedListener(textViewPriceTextChangeListener)
