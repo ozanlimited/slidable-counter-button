@@ -6,14 +6,14 @@ import android.view.View
 import android.view.ViewTreeObserver
 import java.text.DecimalFormat
 
-fun Double.getFormattedPrice(): String {
+internal fun Double.getFormattedPrice(): String {
     val fmt = DecimalFormat.getInstance()
     fmt.minimumFractionDigits = 2
     fmt.maximumFractionDigits = 2
     return fmt.format(this)
 }
 
-inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
+internal inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             if (measuredWidth > 0 && measuredHeight > 0) {
@@ -24,7 +24,7 @@ inline fun View.afterMeasured(crossinline f: View.() -> Unit) {
     })
 }
 
-fun Context.getPixels(valueInDp: Int): Int {
+internal fun Context.getPixels(valueInDp: Int): Int {
     val r = resources
     val px = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
@@ -34,49 +34,18 @@ fun Context.getPixels(valueInDp: Int): Int {
     return px.toInt()
 }
 
-fun Context.getPixels(valueInDp: Float): Int {
-    val r = resources
-    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, r.displayMetrics)
-    return px.toInt()
-}
+internal fun Int?.orZero(): Int = this ?: 0
 
-fun Context.getPixelsSp(valueInSp: Int): Int {
-    val r = resources
-    val px =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, valueInSp.toFloat(), r.displayMetrics)
-    return px.toInt()
-}
+internal fun Double?.orZero(): Double = this ?: 0.0
 
-fun Context.getPixelsSp(valueInSp: Float): Int {
-    val r = resources
-    val px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, valueInSp, r.displayMetrics)
-    return px.toInt()
-}
-
-fun Int?.orZero(): Int = this ?: 0
-
-fun Double?.orZero(): Double = this ?: 0.0
-
-fun Long?.orZero(): Long = this ?: 0L
-
-fun Int?.orOne(): Int = this ?: 1
-
-fun Double?.orOne(): Double = this ?: 1.0
-
-fun Long?.orOne(): Long = this ?: 1L
-
-fun Int.greaterThan(number: Int): Boolean = this > number
-
-fun Long?.isNull(): Boolean = this == null
-
-fun View.hide() {
+internal fun View.hide() {
     this.visibility = View.GONE
 }
 
-fun View.invisible() {
+internal fun View.invisible() {
     this.visibility = View.INVISIBLE
 }
 
-fun View.visible() {
+internal fun View.visible() {
     this.visibility = View.VISIBLE
 }

@@ -86,12 +86,6 @@ class SlidableCounterButton @JvmOverloads constructor(
     private var isSliding = false
 
     /**
-     * Gives information can trigger out of stock or not.
-     */
-
-    private var triggerOutOfStockOnSwipe = true
-
-    /**
      * Gives information about isDisabled or not.
      */
 
@@ -236,7 +230,6 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
                 MotionEvent.ACTION_UP -> {
                     isSliding = false
-                    triggerOutOfStockOnSwipe = true
                     endTouchX = motionEvent.x
                     endTouchY = motionEvent.y
 
@@ -258,7 +251,6 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
-                    triggerOutOfStockOnSwipe = true
                     clearFocus()
                     normalizeCurrentState()
                     requestDisallowInterceptTouchEvent(false)
@@ -279,12 +271,6 @@ class SlidableCounterButton @JvmOverloads constructor(
                         viewState?.purchasedCount == 0 && canIncreasePiece()
                     ) {
                         increasePiece()
-                    } else if ((startTouchX - touchX) >
-                        context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP) &&
-                        viewState?.purchasedCount == 0 && canIncreasePiece().not() && triggerOutOfStockOnSwipe
-                    ) {
-                        outOfStockListener?.outOfStock()
-                        triggerOutOfStockOnSwipe = false
                     }
 
                     touchX = motionEvent.x // Update touch point
@@ -441,7 +427,12 @@ class SlidableCounterButton @JvmOverloads constructor(
                 setStateCollapsed()
             } else if (visibleSpaceWidth - fullExpandedSpaceWidth >= halfExpandedSpaceWidth - visibleSpaceWidth
             ) {
-                setStateFullExpanded()
+                setStateFullExpanded().also {
+                    if (viewState?.purchasedCount == 0) {
+                        outOfStockListener?.outOfStock()
+                        setStateCollapsed()
+                    }
+                }
             }
         }
     }
