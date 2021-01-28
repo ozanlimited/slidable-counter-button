@@ -258,9 +258,6 @@ class SlidableCounterButton @JvmOverloads constructor(
                 }
 
                 MotionEvent.ACTION_MOVE -> {
-                    if (isDisabled)
-                        return@touchListener true
-
                     handleSlide(motionEvent.x - touchX)
 
                     if (abs(motionEvent.x - startTouchX) > halfExpandedSpaceWidth)
@@ -416,6 +413,12 @@ class SlidableCounterButton @JvmOverloads constructor(
         val currentCardViewTopWidth = cardViewTop.measuredWidth
         val visibleSpaceWidth = width - currentCardViewTopWidth
 
+        if (isDisabled) {
+            outOfStockListener?.outOfStock()
+            setStateCollapsed()
+            return
+        }
+
         if (visibleSpaceWidth <= fullExpandedSpaceWidth ||
             visibleSpaceWidth >= halfExpandedSpaceWidth
         ) {
@@ -427,12 +430,7 @@ class SlidableCounterButton @JvmOverloads constructor(
                 setStateCollapsed()
             } else if (visibleSpaceWidth - fullExpandedSpaceWidth >= halfExpandedSpaceWidth - visibleSpaceWidth
             ) {
-                setStateFullExpanded().also {
-                    if (viewState?.purchasedCount == 0) {
-                        outOfStockListener?.outOfStock()
-                        setStateCollapsed()
-                    }
-                }
+                setStateFullExpanded()
             }
         }
     }
@@ -997,7 +995,6 @@ class SlidableCounterButton @JvmOverloads constructor(
         this.isDisabled = isDisabled
 
         if (isDisabled) {
-            textViewPrice.removeTextChangedListener(textViewPriceTextChangeListener)
             cardViewTop.setCardBackgroundColor(disabledCardTopColor)
             cardViewBottom.setCardBackgroundColor(disabledCardBottomColor)
             textViewSmallCounter.setTextColor(disabledTextColor)
@@ -1005,7 +1002,6 @@ class SlidableCounterButton @JvmOverloads constructor(
             textViewTitle.setTextColor(disabledTextColor)
             textViewPrice.setTextColor(disabledTextColor)
         } else {
-            textViewPrice.addTextChangedListener(textViewPriceTextChangeListener)
             cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
             cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
             textViewSmallCounter.setTextColor(defaultTextColor)
