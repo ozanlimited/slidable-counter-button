@@ -50,12 +50,10 @@
                 <TextView
                     android:id="@+id/textViewCounter"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:gravity="center"
                     android:paddingStart="@dimen/padding_16dp"
-                    android:paddingTop="@dimen/padding_8dp"
                     android:paddingEnd="@dimen/padding_16dp"
-                    android:paddingBottom="@dimen/padding_8dp"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/buttonPlus"
