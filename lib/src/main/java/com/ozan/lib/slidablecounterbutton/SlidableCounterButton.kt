@@ -170,7 +170,6 @@ class SlidableCounterButton @JvmOverloads constructor(
         isFocusableInTouchMode = true
         isFocusable = true
         setView(attrs)
-        calculateViews()
         setOnTouchListener()
         setWillNotDraw(true)
     }
@@ -386,6 +385,8 @@ class SlidableCounterButton @JvmOverloads constructor(
         textViewSmallCounter.setOnClickListener {
             setStateFullExpanded()
         }
+
+        calculateViews()
     }
 
     /** Handle slide event in view bounds. */
