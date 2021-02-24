@@ -437,83 +437,116 @@ class SlidableCounterButton @JvmOverloads constructor(
     }
 
     /** Set current state [STATE_COLLAPSED] */
-    fun setStateCollapsed() {
-        val resizeAnimation =
-            ResizeAnimation(
-                cardViewTop,
-                (width - context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP))
-            ).apply { duration = Constants.RESIZE_ANIM_DURATION }
+    fun setStateCollapsed(animate: Boolean = true) {
+        val targetWidth = (width - context.getPixels(Constants.DEFAULT_RIGHT_MARGIN_IN_DP))
+        if (animate) {
+            val resizeAnimation =
+                ResizeAnimation(
+                    cardViewTop,
+                    targetWidth
+                ).apply { duration = Constants.RESIZE_ANIM_DURATION }
 
-        cardViewTop.clearAnimation()
-        cardViewTop.startAnimation(resizeAnimation)
-        resizeAnimation.setAnimationListener(object :
-            Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {
-                _currentState = STATE_COLLAPSED
-                textViewSmallCounter.invisible()
-                constraintCounterContainer.visible()
-            }
+            cardViewTop.clearAnimation()
+            cardViewTop.startAnimation(resizeAnimation)
+            resizeAnimation.setAnimationListener(object :
+                Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                    _currentState = STATE_COLLAPSED
+                    textViewSmallCounter.invisible()
+                    constraintCounterContainer.visible()
+                }
 
-            override fun onAnimationRepeat(p0: Animation?) {}
+                override fun onAnimationRepeat(p0: Animation?) {}
 
-            override fun onAnimationEnd(p0: Animation?) {
-                isAnimating = false
-            }
-        })
+                override fun onAnimationEnd(p0: Animation?) {
+                    isAnimating = false
+                }
+            })
+        } else {
+            _currentState = STATE_COLLAPSED
+            textViewSmallCounter.visible()
+            constraintCounterContainer.invisible()
+            val startWidth = cardViewTop.measuredWidth
+            val newWidth = (startWidth + (targetWidth - startWidth))
+            cardViewTop.layoutParams.width = newWidth
+            cardViewTop.requestLayout()
+        }
     }
 
     /** Set current state [STATE_HALF_EXPANDED] */
-    fun setStateHalfExpanded() {
-        val resizeAnimation =
-            ResizeAnimation(
-                cardViewTop,
-                ((width - halfExpandedSpaceWidth).toInt())
-            ).apply { duration = Constants.RESIZE_ANIM_DURATION }
+    fun setStateHalfExpanded(animate: Boolean = true) {
+        val targetWidth = ((width - halfExpandedSpaceWidth).toInt())
+        if (animate) {
+            val resizeAnimation =
+                ResizeAnimation(
+                    cardViewTop,
+                    targetWidth
+                ).apply { duration = Constants.RESIZE_ANIM_DURATION }
 
-        cardViewTop.clearAnimation()
-        cardViewTop.startAnimation(resizeAnimation)
-        resizeAnimation.setAnimationListener(object :
-            Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {
-                _currentState = STATE_HALF_EXPANDED
-                textViewSmallCounter.visible()
-                constraintCounterContainer.invisible()
-            }
+            cardViewTop.clearAnimation()
+            cardViewTop.startAnimation(resizeAnimation)
+            resizeAnimation.setAnimationListener(object :
+                Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                    _currentState = STATE_HALF_EXPANDED
+                    textViewSmallCounter.visible()
+                    constraintCounterContainer.invisible()
+                }
 
-            override fun onAnimationRepeat(p0: Animation?) {}
+                override fun onAnimationRepeat(p0: Animation?) {}
 
-            override fun onAnimationEnd(p0: Animation?) {
-                isAnimating = false
-                clearFocus()
-            }
-        })
+                override fun onAnimationEnd(p0: Animation?) {
+                    isAnimating = false
+                    clearFocus()
+                }
+            })
+        } else {
+            _currentState = STATE_HALF_EXPANDED
+            textViewSmallCounter.visible()
+            constraintCounterContainer.invisible()
+            val startWidth = cardViewTop.measuredWidth
+            val newWidth = (startWidth + (targetWidth - startWidth))
+            cardViewTop.layoutParams.width = newWidth
+            cardViewTop.requestLayout()
+        }
     }
 
     /** Set current state [STATE_FULL_EXPANDED] */
-    fun setStateFullExpanded() {
-        val resizeAnimation =
-            ResizeAnimation(
-                cardViewTop,
-                (width - fullExpandedSpaceWidth).toInt()
-            ).apply { duration = Constants.RESIZE_ANIM_DURATION }
+    fun setStateFullExpanded(animate: Boolean = true) {
+        val targetWidth = (width - fullExpandedSpaceWidth).toInt()
+        if (animate) {
+            val resizeAnimation =
+                ResizeAnimation(
+                    cardViewTop,
+                    targetWidth
+                ).apply { duration = Constants.RESIZE_ANIM_DURATION }
 
-        cardViewTop.clearAnimation()
-        cardViewTop.startAnimation(resizeAnimation)
-        resizeAnimation.setAnimationListener(object :
-            Animation.AnimationListener {
-            override fun onAnimationStart(p0: Animation?) {
-                _currentState = STATE_FULL_EXPANDED
-                textViewSmallCounter.invisible()
-                constraintCounterContainer.visible()
-            }
+            cardViewTop.clearAnimation()
+            cardViewTop.startAnimation(resizeAnimation)
+            resizeAnimation.setAnimationListener(object :
+                Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                    _currentState = STATE_FULL_EXPANDED
+                    textViewSmallCounter.invisible()
+                    constraintCounterContainer.visible()
+                }
 
-            override fun onAnimationRepeat(p0: Animation?) {}
+                override fun onAnimationRepeat(p0: Animation?) {}
 
-            override fun onAnimationEnd(p0: Animation?) {
-                isAnimating = false
-                clearFocus()
-            }
-        })
+                override fun onAnimationEnd(p0: Animation?) {
+                    isAnimating = false
+                    clearFocus()
+                }
+            })
+        } else {
+            _currentState = STATE_FULL_EXPANDED
+            textViewSmallCounter.invisible()
+            constraintCounterContainer.visible()
+            val startWidth = cardViewTop.measuredWidth
+            val newWidth = (startWidth + (targetWidth - startWidth))
+            cardViewTop.layoutParams.width = newWidth
+            cardViewTop.requestLayout()
+        }
     }
 
     override fun performClick(): Boolean {
@@ -886,28 +919,29 @@ class SlidableCounterButton @JvmOverloads constructor(
 
     private fun measureComplete() {
         if (halfExpandedSpaceWidth != 0f && fullExpandedSpaceWidth != 0f) {
+
             val bounceAnimation =
                 AnimationUtils.loadAnimation(context, R.anim.anim_bounce_left_to_right)
 
             when (_currentState) {
                 STATE_COLLAPSED -> {
-                    setStateCollapsed()
+                    setStateCollapsed(animate = false)
                     if (animateOnStart) {
                         cardViewTop.startAnimation(bounceAnimation)
                     }
                 }
                 STATE_BETWEEN_HALF_FULL -> {
-                    setStateHalfExpanded()
+                    setStateHalfExpanded(animate = false)
                 }
                 STATE_HALF_EXPANDED -> {
-                    setStateHalfExpanded()
+                    setStateHalfExpanded(animate = false)
                 }
                 STATE_FULL_EXPANDED -> {
-                    setStateFullExpanded()
+                    setStateFullExpanded(animate = false)
                 }
             }
 
-            cardViewTop.addOnLayoutChangeListener { _, _, _, right, _, _, _, oldRight, _ ->
+            cardViewTop.addOnLayoutChangeListener { _, _, _, right, _, _, _, _, _ ->
                 val currentCardViewTopWidth = cardViewTop.measuredWidth
                 val visibleSpaceWidth = width - currentCardViewTopWidth
 
