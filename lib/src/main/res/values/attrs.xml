@@ -11,5 +11,8 @@
         <attr name="accentTextColor" format="color" />
         <attr name="cardViewTopBackgroundColor" format="color" />
         <attr name="cardViewBottomBackgroundColor" format="color" />
+        <attr name="cornerRadius" format="dimension" />
+        <attr name="topCardDrawable" format="reference" />
+        <attr name="bottomCardDrawable" format="reference" />
     </declare-styleable>
 </resources>

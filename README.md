@@ -90,6 +90,21 @@ counterButton.setup(
     <td>color</td>
     <td>Set bottom card's background color.</td>
   </tr>
+  <tr>
+    <td>app:cornerRadius</td>
+    <td>dimension</td>
+    <td>Set card corner radius. Default is 8dp</td>
+  </tr>
+  <tr>
+    <td>app:topCardDrawable</td>
+    <td>reference</td>
+    <td>Set top card's background drawable. Default is null</td>
+  </tr>
+  <tr>
+    <td>app:bottomCardDrawable</td>
+    <td>reference</td>
+    <td>Set bottom card's background drawable. Default is null</td>
+  </tr>
 </tbody>
 </table>
 
