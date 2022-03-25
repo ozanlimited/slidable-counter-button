@@ -3,6 +3,7 @@ package com.ozan.lib.slidablecounterbutton
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.CountDownTimer
@@ -147,6 +148,9 @@ class SlidableCounterButton @JvmOverloads constructor(
      * Drawables and colors
      */
 
+    private var topCardDrawable: Drawable? = null
+    private var bottomCardDrawable: Drawable? = null
+    private var cornerRadius by Delegates.notNull<Int>()
     private var minusActiveDrawable: Drawable? = null
     private var minusInactiveDrawable: Drawable? = null
     private var plusActiveDrawable: Drawable? = null
@@ -291,6 +295,13 @@ class SlidableCounterButton @JvmOverloads constructor(
                     typedArray.getDrawable(R.styleable.SlidableCounterButton_minusActiveDrawable)
                 minusInactiveDrawable =
                     typedArray.getDrawable(R.styleable.SlidableCounterButton_minusInactiveDrawable)
+                topCardDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_topCardDrawable)
+                bottomCardDrawable =
+                    typedArray.getDrawable(R.styleable.SlidableCounterButton_bottomCardDrawable)
+                cornerRadius =
+                    typedArray.getDimensionPixelSize(R.styleable.SlidableCounterButton_cornerRadius,
+                        resources.getDimensionPixelSize(R.dimen.radius_8dp))
                 plusActiveDrawable =
                     typedArray.getDrawable(R.styleable.SlidableCounterButton_plusActiveDrawable)
                 plusInactiveDrawable =
@@ -322,9 +333,20 @@ class SlidableCounterButton @JvmOverloads constructor(
         } finally {
             typedArray.recycle()
         }
+        cardViewTop.radius = cornerRadius.toFloat()
+        cardViewBottom.radius = cornerRadius.toFloat()
 
-        cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
-        cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
+        if (bottomCardDrawable != null && topCardDrawable != null) {
+            cardViewTop.setCardBackgroundColor(Color.TRANSPARENT)
+            cardViewBottom.setCardBackgroundColor(Color.TRANSPARENT)
+            relativeLayoutBottom.background = bottomCardDrawable
+            relativeLayoutTop.background = topCardDrawable
+        } else {
+            cardViewTop.setCardBackgroundColor(cardViewTopBackgroundColor)
+            cardViewBottom.setCardBackgroundColor(cardViewBottomBackgroundColor)
+            relativeLayoutBottom.background = null
+            relativeLayoutTop.background = null
+        }
         textViewSmallCounter.setTextColor(defaultTextColor)
         textViewCounter.setTextColor(defaultTextColor)
         textViewPrice.setTextColor(defaultTextColor)
