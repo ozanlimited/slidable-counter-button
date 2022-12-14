@@ -61,7 +61,7 @@ ext {
     mGroupId = "com.ozanlimited"
     mArtifactId = "slidablebutton"
     mVersionCode = 1
-    mVersionName = "1.3.3"
+    mVersionName = "1.3.4"
 
     mLibraryName = "SlidableCounterButton"
     mLibraryDescription = ""
