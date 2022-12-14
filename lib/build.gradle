@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'org.jlleitschuh.gradle.ktlint'
+apply plugin: 'maven-publish'
 
 buildscript {
     repositories {
@@ -54,6 +55,57 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+ext {
+    mGroupId = "com.ozanlimited"
+    mArtifactId = "slidablebutton"
+    mVersionCode = 1
+    mVersionName = "1.3.3"
+
+    mLibraryName = "SlidableCounterButton"
+    mLibraryDescription = ""
+}
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId mGroupId
+                artifactId mArtifactId
+                version mVersionName
+
+                from components.release
+
+                artifact androidSourcesJar
+
+                pom {
+                    name = mLibraryName
+                    description = mLibraryDescription
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                url System.getenv("GITLAB_REPO_URL")
+                credentials(HttpHeaderCredentials) {
+                    name = System.getenv("GITLAB_DEPLOY_KEY")
+                    value = System.getenv("GITLAB_DEPLOY_TOKEN")
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
+    }
+
+    publish.dependsOn assemble
 }
 
 dependencies {
