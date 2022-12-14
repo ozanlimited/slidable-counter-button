@@ -69,6 +69,6 @@ jobs:
           GITLAB_DEPLOY_TOKEN: ${{ secrets.GITLAB_DEPLOY_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: slidable-counter-button/build/outputs/aar/lib-release.aar
+          asset_path: lib/build/outputs/aar/lib-release.aar
           asset_name: lib.aar
           asset_content_type: application/aar
